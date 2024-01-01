@@ -1,17 +1,29 @@
 import usb.core
 idVendor = 0x1a86
 idProduct = 0xe026
-dev = usb.core.find(idVendor=idVendor, idProduct=idProduct)
-ep = dev[0].interfaces()[0].endpoints()[0]
-i = dev[0].interfaces()[0].bInterfaceNumber
-dev.reset()
 
-if dev.is_kernel_driver_active():
-    dev.detach_kernel_driver()
+device = usb.core.find(idVendor=VENDOR_ID, idProduct=PRODUCT_ID)
 
-dev.set_configuration()
-eadd = ep.bEndpointAddress
+if device is None:
+    raise ValueError('ADU Device not found. Please ensure it is connected to the tablet.')
+    sys.exit(1)
 
-r = dev.read(eadd, 1024)
-print(len(r))
-print(r)
+# Claim interface 0 - this interface provides IN and OUT endpoints to write to and read from
+usb.util.claim_interface(device, 0)
+
+# Write commands to ADU
+bytes_written = write_to_adu(device, 'SK0') # set relay 0
+bytes_written = write_to_adu(device, 'RK0') # reset relay 0
+
+
+# Read from the ADU
+bytes_written = write_to_adu(device, 'RPA') # request the value of PORT A in binary 
+
+data = read_from_adu(device, 200) # read from device with a 200 millisecond timeout
+
+if data != None:
+    print("Received string: {}".format(data))
+    print("Received data as int: {}".format(int(data))) # the returned value is a string - we can convert it to a number (int) if we wish
+
+usb.util.release_interface(device, 0)
+device.close()
