@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>623</width>
-    <height>809</height>
+    <width>600</width>
+    <height>474</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -428,8 +428,8 @@ background-color: rgba(255, 255, 255, 0);</string>
                   <rect>
                    <x>0</x>
                    <y>0</y>
-                   <width>545</width>
-                   <height>518</height>
+                   <width>380</width>
+                   <height>510</height>
                   </rect>
                  </property>
                  <layout class="QVBoxLayout" name="verticalLayout_12">
@@ -764,7 +764,7 @@ background-color: rgba(255, 255, 255, 0);</string>
                   <rect>
                    <x>0</x>
                    <y>0</y>
-                   <width>545</width>
+                   <width>281</width>
                    <height>648</height>
                   </rect>
                  </property>
@@ -1058,8 +1058,8 @@ background-color: rgba(255, 255, 255, 0);</string>
                   <rect>
                    <x>0</x>
                    <y>0</y>
-                   <width>545</width>
-                   <height>569</height>
+                   <width>522</width>
+                   <height>234</height>
                   </rect>
                  </property>
                  <layout class="QVBoxLayout" name="verticalLayout_22">
@@ -1144,8 +1144,6 @@ background-color: rgba(255, 255, 255, 0);</string>
    </layout>
   </widget>
  </widget>
- <resources>
-  <include location="resources.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>
