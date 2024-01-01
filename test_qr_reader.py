@@ -50,10 +50,13 @@ if __name__ == "__main__":
     device = usb.core.find(idVendor=VENDOR_ID, idProduct=PRODUCT_ID)
 
     # if the OS kernel already claimed the device
-    if device.is_kernel_driver_active(0) is True:
+    if device.is_kernel_driver_active(0):
         # tell the kernel to detach
-        device.detach_kernel_driver(0)
-        was_kernel_driver_active = True
+        try:
+            device.detach_kernel_driver(0)
+            was_kernel_driver_active = True
+        except usb.core.USBError as e:
+            sys.exit("Could not detatch kernel driver from interface({0}): {1}".format(0, str(e)))
     else:
         device = usb.core.find(idVendor=VENDOR_ID, idProduct=PRODUCT_ID)
 
