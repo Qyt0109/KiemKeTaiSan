@@ -22,12 +22,6 @@ import logging
 ERROR_CHARACTER = '?'
 VALUE_UP = 0
 VALUE_DOWN = 1
-
-# USB VENDOR & PRODUCT list of 2d scanners
-VENDOR_PRODUCT = [
-        [0x1a86, 0xe026], # [vendor, product]
-        ]
-
 CHARMAP = {
         evdev.ecodes.KEY_1: ['1', '!'],
         evdev.ecodes.KEY_2: ['2', '@'],
@@ -76,24 +70,21 @@ CHARMAP = {
         evdev.ecodes.KEY_COMMA: [',', '<'],
         evdev.ecodes.KEY_DOT: ['.', '>'],
         evdev.ecodes.KEY_SLASH: ['/', '?'],
-        evdev.ecodes.KEY_SPACE: [' ', ' '],
+        evdev.ecodes.KEY_SPACE: [' ', ' ']
         }
 
-
-def barcode_reader_evdev(dev):
+def read_barcode(device):
     barcode_string_output = ''
     # barcode can have a 'shift' character; this switches the character set
     # from the lower to upper case variant for the next character only.
     shift_active = False
-    for event in dev.read_loop():
-
+    for event in device.read_loop():
         #print('categorize:', evdev.categorize(event))
         #print('typeof:', type(event.code))
         #print("event.code:", event.code)
         #print("event.type:", event.type)
         #print("event.value:", event.value)
         #print("event:", event)
-
         if event.code == evdev.ecodes.KEY_ENTER and event.value == VALUE_DOWN:
             #print('KEY_ENTER -> return')
             # all barcodes end with a carriage return
@@ -107,34 +98,34 @@ def barcode_reader_evdev(dev):
             # if the charcode isn't recognized, use ?
             barcode_string_output += ch
 
-def get_device():
+# lsusb to get VENDOR_ID = 0x1a86 and PRODUCT_ID = 0xe026
+# EX: Bus 001 Device 003: ID 1a86:e026 QinHeng Electronics Serial To HID
+def get_device(vendor_id, product_id):
     devices = [evdev.InputDevice(path) for path in evdev.list_devices()]
     for device in devices:
-        print('device:', device)
-        print('info:', device.info)
-        print(device.path, device.name, device.phys)
-        for vp in VENDOR_PRODUCT:
-            if device.info.vendor == vp[0] and device.info.product == vp[1]:
-                return device
+        # print('device:', device)
+        # print('info:', device.info)
+        # print(device.path, device.name, device.phys)
+        if device.info.vendor == vendor_id and device.info.product == product_id:
+            return device
     return None
 
 if __name__ == '__main__':
-    
-    for path in evdev.list_devices():
-        print('path:', path)
-
-    dev = get_device()
-    print('selected device:', dev)
-    #dev = evdev.InputDevice('/dev/input/event25')
-    dev.grab()
+    # for path in evdev.list_devices():
+    #    print('path:', path)
+    vendor_id = 0x1a86
+    product_id = 0xe026
+    device = get_device(vendor_id, product_id)
+    print('selected device:', device)
+    device.grab()
 
     try:
         while True:
-            upcnumber = barcode_reader_evdev(dev)
-            print(upcnumber)
+            code = read_barcode(device)
+            print(code)
     except KeyboardInterrupt:
         logging.debug('Keyboard interrupt')
     except Exception as err:
         logging.error(err)
 
-    dev.ungrab()
+    device.ungrab()
