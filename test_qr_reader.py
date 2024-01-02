@@ -1,3 +1,4 @@
+import sys
 import usb.core
 import usb.util
 
@@ -131,6 +132,13 @@ def hid2ascii(lst):
 dev = usb.core.find(idVendor=0x1a86, idProduct=0xe026)
 if dev is None:
     raise ValueError('USB device not found')
+if dev.is_kernel_driver_active(0):
+    try:
+        dev.detach_kernel_driver(0)
+        print("Kernel driver detached")
+
+    except usb.core.USBError as e:
+        sys.exit("Could not detach kernel driver: %s" % str(e))
 
 # Disconnect it from kernel
 needs_reattach = False
