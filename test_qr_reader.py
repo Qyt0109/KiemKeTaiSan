@@ -1,23 +1,28 @@
 import usb.core
-import sys
+import usb.util
 
-dev = usb.core.find(idVendor=0x1a86,
-                    idProduct=0xe026)
-ep = dev[0].interfaces()[5].endpoints()[0]
+# Find the USB device by vendor and product ID
+vendor_id = 0x1a86  # Replace with your USB device's vendor ID
+product_id = 0xe026  # Replace with your USB device's product ID
 
-i = dev[0].interfaces()[5].bInterfaceNumber
+device = usb.core.find(idVendor=vendor_id, idProduct=product_id)
 
-dev.reset()
+if device is None:
+    raise ValueError("Device not found")
 
-if dev.is_kernel_driver_active(i):
-    try:
-        dev.detach_kernel_driver(i)
-    except usb.core.USBError as e:
-        sys.exit("Could not detatch kernel driver from interface({0}): {1}".format(i, str(e)))
-    
-dev.set_configuration()
+# Set up the USB interface and endpoint
+interface = 0  # Replace with the interface number of your USB device
+endpoint = 0x81  # Replace with the endpoint address of your USB device
 
-eaddr = ep.bEndpointAdress
+# Claim the interface
+usb.util.claim_interface(device, interface)
 
-r = dev.read(eaddr,1024)
-print(len(r))
+try:
+    # Read data from the USB device
+    data = device.read(endpoint, 64)  # Adjust the buffer size as needed
+
+    # Process the read data as needed
+    print(f"Read data: {data}")
+finally:
+    # Release the interface
+    usb.util.release_interface(device, interface)
