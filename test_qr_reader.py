@@ -1,187 +1,140 @@
-import sys
-import usb.core
-import usb.util
+#!python
 
-"""
-This uses the pyusb module to read the popular LS2208 USB barcode 
-scanner in Linux. This barcode scanner is sold under many labels. It
-is a USB HID device and shows up as a keyboard so a scan will "type"
-the data into any program. But that also becomes its limitation. Often,
-you don't want it to act like it's typing on a keyboard; you just want
-to get data directly from it.
+# Tested with `SC-8110-2D-B` 1d & 2d barcode scanner
+#
+# Inspired by https://github.com/julzhk/usb_barcode_scanner
+# which was inspired by https://www.piddlerintheroot.com/barcode-scanner/
+# https://www.raspberrypi.org/forums/viewtopic.php?f=45&t=55100
+# from 'brechmos' - thank-you!
+#
+# This implementation doesn't directly decode hidraw stream, but uses
+# evdev and grabs the device, so the code arrives only in this script
+# and not in any active input window.
+# 
+# Also, it uses a list of USB vendor:product to identify the device,
+# so that you don't have to set the dev path.
+#
+# License: MIT No Attribution License (MIT-0) - https://opensource.org/licenses/MIT-0
 
-This program detaches the device from the kernel so it will not "type"
-anything, and reads directly from the device without needing any device-
-specific USB drivers.
+import evdev
+import logging
 
-It does use pyusb to do low-level USB comm. See 
-https://github.com/pyusb/pyusb for installation requirements. Basically, 
-you need to install pyusb:
+ERROR_CHARACTER = '?'
+VALUE_UP = 0
+VALUE_DOWN = 1
 
-    pip install pyusb
+# USB VENDOR & PRODUCT list of 2d scanners
+VENDOR_PRODUCT = [
+        [0x1d6b, 0x0107], # [vendor, product]
+        ]
 
-To install the backend that pyusb uses, you can use libusb (among
-others):
+CHARMAP = {
+        evdev.ecodes.KEY_1: ['1', '!'],
+        evdev.ecodes.KEY_2: ['2', '@'],
+        evdev.ecodes.KEY_3: ['3', '#'],
+        evdev.ecodes.KEY_4: ['4', '$'],
+        evdev.ecodes.KEY_5: ['5', '%'],
+        evdev.ecodes.KEY_6: ['6', '^'],
+        evdev.ecodes.KEY_7: ['7', '&'],
+        evdev.ecodes.KEY_8: ['8', '*'],
+        evdev.ecodes.KEY_9: ['9', '('],
+        evdev.ecodes.KEY_0: ['0', ')'],
+        evdev.ecodes.KEY_MINUS: ['-', '_'],
+        evdev.ecodes.KEY_EQUAL: ['=', '+'],
+        evdev.ecodes.KEY_TAB: ['\t', '\t'],
+        evdev.ecodes.KEY_Q: ['q', 'Q'],
+        evdev.ecodes.KEY_W: ['w', 'W'],
+        evdev.ecodes.KEY_E: ['e', 'E'],
+        evdev.ecodes.KEY_R: ['r', 'R'],
+        evdev.ecodes.KEY_T: ['t', 'T'],
+        evdev.ecodes.KEY_Y: ['y', 'Y'],
+        evdev.ecodes.KEY_U: ['u', 'U'],
+        evdev.ecodes.KEY_I: ['i', 'I'],
+        evdev.ecodes.KEY_O: ['o', 'O'],
+        evdev.ecodes.KEY_P: ['p', 'P'],
+        evdev.ecodes.KEY_LEFTBRACE: ['[', '{'],
+        evdev.ecodes.KEY_RIGHTBRACE: [']', '}'],
+        evdev.ecodes.KEY_A: ['a', 'A'],
+        evdev.ecodes.KEY_S: ['s', 'S'],
+        evdev.ecodes.KEY_D: ['d', 'D'],
+        evdev.ecodes.KEY_F: ['f', 'F'],
+        evdev.ecodes.KEY_G: ['g', 'G'],
+        evdev.ecodes.KEY_H: ['h', 'H'],
+        evdev.ecodes.KEY_J: ['j', 'J'],
+        evdev.ecodes.KEY_K: ['k', 'K'],
+        evdev.ecodes.KEY_L: ['l', 'L'],
+        evdev.ecodes.KEY_SEMICOLON: [';', ':'],
+        evdev.ecodes.KEY_APOSTROPHE: ['\'', '"'],
+        evdev.ecodes.KEY_BACKSLASH: ['\\', '|'],
+        evdev.ecodes.KEY_Z: ['z', 'Z'],
+        evdev.ecodes.KEY_X: ['x', 'X'],
+        evdev.ecodes.KEY_C: ['c', 'C'],
+        evdev.ecodes.KEY_V: ['v', 'V'],
+        evdev.ecodes.KEY_B: ['b', 'B'],
+        evdev.ecodes.KEY_N: ['n', 'N'],
+        evdev.ecodes.KEY_M: ['m', 'M'],
+        evdev.ecodes.KEY_COMMA: [',', '<'],
+        evdev.ecodes.KEY_DOT: ['.', '>'],
+        evdev.ecodes.KEY_SLASH: ['/', '?'],
+        evdev.ecodes.KEY_SPACE: [' ', ' '],
+        }
 
-    sudo apt install libusb-1.0-0-dev
+
+def barcode_reader_evdev(dev):
+    barcode_string_output = ''
+    # barcode can have a 'shift' character; this switches the character set
+    # from the lower to upper case variant for the next character only.
+    shift_active = False
+    for event in dev.read_loop():
+
+        #print('categorize:', evdev.categorize(event))
+        #print('typeof:', type(event.code))
+        #print("event.code:", event.code)
+        #print("event.type:", event.type)
+        #print("event.value:", event.value)
+        #print("event:", event)
+
+        if event.code == evdev.ecodes.KEY_ENTER and event.value == VALUE_DOWN:
+            #print('KEY_ENTER -> return')
+            # all barcodes end with a carriage return
+            return barcode_string_output
+        elif event.code == evdev.ecodes.KEY_LEFTSHIFT or event.code == evdev.ecodes.KEY_RIGHTSHIFT:
+            #print('SHIFT')
+            shift_active = event.value == VALUE_DOWN
+        elif event.value == VALUE_DOWN:
+            ch = CHARMAP.get(event.code, ERROR_CHARACTER)[1 if shift_active else 0]
+            #print('ch:', ch)
+            # if the charcode isn't recognized, use ?
+            barcode_string_output += ch
+
+def get_device():
+    devices = [evdev.InputDevice(path) for path in evdev.list_devices()]
+    for device in devices:
+        print('device:', device)
+        print('info:', device.info)
+        print(device.path, device.name, device.phys)
+        for vp in VENDOR_PRODUCT:
+            if device.info.vendor == vp[0] and device.info.product == vp[1]:
+                return device
+    return None
+
+if __name__ == '__main__':
     
-You need to make sure your user is a member of plugdev to use USB 
-devices (in Debian linux):
+    for path in evdev.list_devices():
+        print('path:', path)
 
-    sudo addgroup <myuser> plugdev
-    
-You also need to create a udev rule to allow all users to access the
-barcode scanner. In /etc/udev/rules.d, create a file that ends in .rules
-such as 55-barcode-scanner.rules with these contents:
+    dev = get_device()
+    print('selected device:', dev)
+    #dev = evdev.InputDevice('/dev/input/event25')
+    dev.grab()
 
-    (TBD)
-"""
-
-
-def hid2ascii(lst):
-    """The USB HID device sends an 8-byte code for every character. This
-    routine converts the HID code to an ASCII character.
-
-    See https://www.usb.org/sites/default/files/documents/hut1_12v2.pdf
-    for a complete code table. Only relevant codes are used here."""
-
-    # Example input from scanner representing the string "http:":
-    #   array('B', [0, 0, 11, 0, 0, 0, 0, 0])   # h
-    #   array('B', [0, 0, 23, 0, 0, 0, 0, 0])   # t
-    #   array('B', [0, 0, 0, 0, 0, 0, 0, 0])    # nothing, ignore
-    #   array('B', [0, 0, 23, 0, 0, 0, 0, 0])   # t
-    #   array('B', [0, 0, 19, 0, 0, 0, 0, 0])   # p
-    #   array('B', [2, 0, 51, 0, 0, 0, 0, 0])   # :
-
-    assert len(lst) == 8, 'Invalid data length (needs 8 bytes)'
-    conv_table = {
-        0: ['', ''],
-        4: ['a', 'A'],
-        5: ['b', 'B'],
-        6: ['c', 'C'],
-        7: ['d', 'D'],
-        8: ['e', 'E'],
-        9: ['f', 'F'],
-        10: ['g', 'G'],
-        11: ['h', 'H'],
-        12: ['i', 'I'],
-        13: ['j', 'J'],
-        14: ['k', 'K'],
-        15: ['l', 'L'],
-        16: ['m', 'M'],
-        17: ['n', 'N'],
-        18: ['o', 'O'],
-        19: ['p', 'P'],
-        20: ['q', 'Q'],
-        21: ['r', 'R'],
-        22: ['s', 'S'],
-        23: ['t', 'T'],
-        24: ['u', 'U'],
-        25: ['v', 'V'],
-        26: ['w', 'W'],
-        27: ['x', 'X'],
-        28: ['y', 'Y'],
-        29: ['z', 'Z'],
-        30: ['1', '!'],
-        31: ['2', '@'],
-        32: ['3', '#'],
-        33: ['4', '$'],
-        34: ['5', '%'],
-        35: ['6', '^'],
-        36: ['7', '&'],
-        37: ['8', '*'],
-        38: ['9', '('],
-        39: ['0', ')'],
-        40: ['\n', '\n'],
-        41: ['\x1b', '\x1b'],
-        42: ['\b', '\b'],
-        43: ['\t', '\t'],
-        44: [' ', ' '],
-        45: ['_', '_'],
-        46: ['=', '+'],
-        47: ['[', '{'],
-        48: [']', '}'],
-        49: ['\\', '|'],
-        50: ['#', '~'],
-        51: [';', ':'],
-        52: ["'", '"'],
-        53: ['`', '~'],
-        54: [',', '<'],
-        55: ['.', '>'],
-        56: ['/', '?'],
-        100: ['\\', '|'],
-        103: ['=', '='],
-    }
-
-    # A 2 in first byte seems to indicate to shift the key. For example
-    # a code for ';' but with 2 in first byte really means ':'.
-    if lst[0] == 2:
-        shift = 1
-    else:
-        shift = 0
-
-    # The character to convert is in the third byte
-    ch = lst[2]
-    if ch not in conv_table:
-        print("Warning: data not in conversion table")
-        return ''
-    return conv_table[ch][shift]
-
-
-# Find our device using the VID (Vendor ID) and PID (Product ID)
-dev = usb.core.find(idVendor=0x1a86, idProduct=0xe026)
-if dev is None:
-    raise ValueError('USB device not found')
-if dev.is_kernel_driver_active(0):
     try:
-        dev.detach_kernel_driver(0)
-        print("Kernel driver detached")
-
-    except usb.core.USBError as e:
-        sys.exit("Could not detach kernel driver: %s" % str(e))
-
-# Disconnect it from kernel
-needs_reattach = False
-if dev.is_kernel_driver_active(0):
-    needs_reattach = True
-    dev.detach_kernel_driver(0)
-    print("Detached USB device from kernel driver")
-
-# set the active configuration. With no arguments, the first
-# configuration will be the active one
-dev.set_configuration()
-
-# get an endpoint instance
-cfg = dev.get_active_configuration()
-intf = cfg[(0, 0)]
-
-ep = usb.util.find_descriptor(
-    intf,
-    # match the first IN endpoint
-    custom_match=lambda e: \
-    usb.util.endpoint_direction(e.bEndpointAddress) == \
-    usb.util.ENDPOINT_IN)
-
-assert ep is not None, "Endpoint for USB device not found. Something is wrong."
-
-# Loop through a series of 8-byte transactions and convert each to an
-# ASCII character. Print output after 0.5 seconds of no data.
-line = ''
-while True:
-    try:
-        # Wait up to 0.5 seconds for data. 500 = 0.5 second timeout.
-        data = ep.read(1000, 500)
-        ch = hid2ascii(data)
-        line += ch
+        while True:
+            upcnumber = barcode_reader_evdev(dev)
+            print(upcnumber)
     except KeyboardInterrupt:
-        print("Stopping program")
-        dev.reset()
-        if needs_reattach:
-            dev.attach_kernel_driver(0)
-            print("Reattached USB device to kernel driver")
-        break
-    except usb.core.USBError:
-        # Timed out. End of the data stream. Print the scan line.
-        if len(line) > 0:
-            print(line)
-            line = ''
+        logging.debug('Keyboard interrupt')
+    except Exception as err:
+        logging.error(err)
+
+    dev.ungrab()
