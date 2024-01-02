@@ -110,10 +110,9 @@ CHARMAP_UPPERCASE = {
 CR_CHAR = 40
 SHIFT_CHAR = 2
 ERROR_CHARACTER = "?"
-from Backend.Services.QrReader.logging_base import LoggerBase
 
 
-class BarcodeReader(LoggerBase):
+class BarcodeReader():
     def __init__(self, device_path, name="BarcodeReader", root="./logs/"):
         super().__init__(name, root)
         self.logger.info("Connect to QR Scanner at {}".format(device_path))
