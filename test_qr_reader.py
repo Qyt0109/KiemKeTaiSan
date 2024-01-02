@@ -128,7 +128,7 @@ def hid2ascii(lst):
 
 
 # Find our device using the VID (Vendor ID) and PID (Product ID)
-dev = usb.core.find(idVendor=0x05e0, idProduct=0x1200)
+dev = usb.core.find(idVendor=0x1a86, idProduct=0xe026)
 if dev is None:
     raise ValueError('USB device not found')
 
