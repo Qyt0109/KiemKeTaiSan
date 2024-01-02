@@ -25,7 +25,7 @@ VALUE_DOWN = 1
 
 # USB VENDOR & PRODUCT list of 2d scanners
 VENDOR_PRODUCT = [
-        [0x1d6b, 0x0107], # [vendor, product]
+        [0x1a86, 0xe026], # [vendor, product]
         ]
 
 CHARMAP = {
