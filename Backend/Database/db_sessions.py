@@ -17,160 +17,164 @@ Session = sessionmaker(bind=engine)
 
 session = Session()
 
-class CRUDStatus(Enum):
+class CRUD_Status(Enum):
     NOT_FOUND = 'Not Found'
     CREATED = 'Created'
     UPDATED = 'Updated'
     DELETED = 'Deleted'
-    FAIL = 'Fail'
+    ERROR = 'Error'
 
 def crud_handler_wrapper(func: Callable)->Callable:
-    def wrapper(*args, **kwargs)->Tuple[CRUDStatus, any]:
+    def wrapper(*args, **kwargs)->Tuple[CRUD_Status, any]:
         try:
             result = func(*args, **kwargs)
             session.commit()
             return result
         except Exception as e:
             session.rollback()
-            return CRUDStatus.FAIL
+            return CRUD_Status.ERROR
 
     return wrapper
 
-class KhuCRUD:
+class CRUD_Khu:
     @staticmethod
     @crud_handler_wrapper
-    def create_khu(ten: str):
+    def create(ten: str):
         new_khu = Khu(ten=ten)
         session.add(new_khu)
-        return CRUDStatus.CREATED
+        return CRUD_Status.CREATED
 
     @staticmethod
-    def read_khu(khu_id: int):
+    def read(khu_id: int):
         return session.query(Khu).get(khu_id)
     
     @staticmethod
-    def read_all_khu():
+    def read_all():
         return session.query(Khu).all()
 
     @staticmethod
     @crud_handler_wrapper
-    def update_khu(khu_id: int, new_ten: str=None):
+    def update(khu_id: int, new_ten: str=None):
         if new_ten:
-            khu = KhuCRUD.read_khu(khu_id=khu_id)
+            khu = CRUD_Khu.read(khu_id=khu_id)
             if not khu:
-                return CRUDStatus.NOT_FOUND
+                return CRUD_Status.NOT_FOUND
             if new_ten:
                 khu.ten = new_ten
-            return CRUDStatus.UPDATED
+            return CRUD_Status.UPDATED
 
     @staticmethod
     @crud_handler_wrapper
-    def delete_khu(khu_id: int):
-        khu = KhuCRUD.read_khu(khu_id=khu_id)
+    def delete(khu_id: int):
+        khu = CRUD_Khu.read(khu_id=khu_id)
         if not khu:
-            return CRUDStatus.NOT_FOUND
+            return CRUD_Status.NOT_FOUND
         session.delete(khu)
-        return CRUDStatus.DELETED
+        return CRUD_Status.DELETED
 
 
-class CanBoCRUD:
+class CRUD_CanBo:
     @staticmethod
     @crud_handler_wrapper
-    def create_can_bo(ten: str, sdt: str=None):
+    def create(ten: str, sdt: str=None):
         new_can_bo = CanBo(ten=ten, sdt=sdt)
         session.add(new_can_bo)
-        return CRUDStatus.CREATED
+        return CRUD_Status.CREATED
 
     @staticmethod
-    def read_can_bo(can_bo_id: int):
+    def read(can_bo_id: int):
         return session.query(CanBo).get(can_bo_id)
     
     @staticmethod
-    def read_all_can_bo():
+    def read_all():
         return session.query(CanBo).all()
 
     @staticmethod
     @crud_handler_wrapper
-    def update_can_bo(can_bo_id: int, new_ten: str=None, new_sdt: str=None):
+    def update(can_bo_id: int, new_ten: str=None, new_sdt: str=None):
         if new_ten or new_sdt:
-            can_bo = CanBoCRUD.read_can_bo(can_bo_id=can_bo_id)
+            can_bo = CRUD_CanBo.read(can_bo_id=can_bo_id)
             if not can_bo:
-                return CRUDStatus.NOT_FOUND
+                return CRUD_Status.NOT_FOUND
             if new_ten:
                 can_bo.ten = new_ten
             if new_sdt:
                 can_bo.sdt = new_sdt
-            return CRUDStatus.UPDATED
+            return CRUD_Status.UPDATED
 
     @staticmethod
-    def delete_can_bo(can_bo_id: int):
-        can_bo = CanBoCRUD.read_can_bo(can_bo_id=can_bo_id)
+    def delete(can_bo_id: int):
+        can_bo = CRUD_CanBo.read(can_bo_id=can_bo_id)
         if not can_bo:
-            return CRUDStatus.NOT_FOUND
+            return CRUD_Status.NOT_FOUND
         session.delete(can_bo)
-        return CRUDStatus.DELETED
+        return CRUD_Status.DELETED
 
-class DonViCRUD:
+class CRUD_DonVi:
     @staticmethod
     @crud_handler_wrapper
-    def create_don_vi(ten: str):
-        new_don_vi = DonVi(ten=ten)
+    def create(ten: str, ma:str):
+        new_don_vi = DonVi(ten=ten, ma=ma)
         session.add(new_don_vi)
-        return CRUDStatus.CREATED
+        return CRUD_Status.CREATED
 
     @staticmethod
-    def read_don_vi(don_vi_id: int):
+    def read(don_vi_id: int):
         return session.query(DonVi).get(don_vi_id)
     
     @staticmethod
-    def read_all_don_vi():
+    def read_all():
         return session.query(DonVi).all()
 
     @staticmethod
-    def update_don_vi(don_vi_id: int, new_ten: str=None):
-        if new_ten:
-            don_vi = DonViCRUD.read_don_vi(don_vi_id=don_vi_id)
+    def update(don_vi_id: int, new_ten: str=None, new_ma :str=None):
+        if new_ten or new_ma:
+            don_vi = CRUD_DonVi.read(don_vi_id=don_vi_id)
             if not don_vi:
-                return CRUDStatus.NOT_FOUND
+                return CRUD_Status.NOT_FOUND
             if new_ten:
                 don_vi.ten = new_ten
-            return CRUDStatus.UPDATED
+            if new_ma:
+                don_vi.ma = new_ma
+            return CRUD_Status.UPDATED
 
     @staticmethod
     @crud_handler_wrapper
-    def delete_don_vi(don_vi_id: int):
-        don_vi = DonViCRUD.read_don_vi(don_vi_id=don_vi_id)
+    def delete(don_vi_id: int):
+        don_vi = CRUD_DonVi.read(don_vi_id=don_vi_id)
         if not don_vi:
-            return CRUDStatus.NOT_FOUND
+            return CRUD_Status.NOT_FOUND
         session.delete(don_vi)
-        return CRUDStatus.DELETED
+        return CRUD_Status.DELETED
 
 
-class PhongCRUD:
+class CRUD_Phong:
     @staticmethod
     @crud_handler_wrapper
-    def create_phong(ten: str, thong_tin: str=None, khu_id: int=None, don_vi_id: int=None, can_bo_id: int=None):
-        new_phong = Phong(ten=ten, thong_tin=thong_tin, khu_id=khu_id, don_vi_id=don_vi_id, can_bo_id=can_bo_id)
+    def create(ten: str, ma:str, thong_tin: str=None, khu_id: int=None, don_vi_id: int=None, can_bo_id: int=None):
+        new_phong = Phong(ten=ten, ma=ma, thong_tin=thong_tin, khu_id=khu_id, don_vi_id=don_vi_id, can_bo_id=can_bo_id)
         session.add(new_phong)
-        return CRUDStatus.CREATED
+        return CRUD_Status.CREATED
 
     @staticmethod
-    def read_phong(phong_id: int):
+    def read(phong_id: int):
         return session.query(Phong).get(phong_id)
     
     @staticmethod
-    def read_all_phong():
+    def read_all():
         return session.query(Phong).all()
 
     @staticmethod
     @crud_handler_wrapper
-    def update_phong(phong_id: int, new_ten: str=None, new_thong_tin: str=None, new_khu_id: int=None, new_don_vi_id: int=None, new_can_bo_id: int=None):
-        if new_ten or new_can_bo_id or new_don_vi_id or new_khu_id or new_thong_tin:
-            phong = PhongCRUD.read_phong(phong_id=phong_id)
+    def update(phong_id: int, new_ten: str=None, new_ma: str=None, new_thong_tin: str=None, new_khu_id: int=None, new_don_vi_id: int=None, new_can_bo_id: int=None):
+        if new_ten or new_ma or new_can_bo_id or new_don_vi_id or new_khu_id or new_thong_tin:
+            phong = CRUD_Phong.read(phong_id=phong_id)
             if not phong:
-                return CRUDStatus.NOT_FOUND
+                return CRUD_Status.NOT_FOUND
             if new_ten:
                 phong.ten = new_ten
+            if new_ma:
+                phong.ma = new_ma
             if new_thong_tin:
                 phong.thong_tin = new_thong_tin
             if new_khu_id:
@@ -179,101 +183,127 @@ class PhongCRUD:
                 phong.don_vi_id = new_don_vi_id
             if new_can_bo_id:
                 phong.can_bo_id = new_can_bo_id
-            return CRUDStatus.UPDATED
+            return CRUD_Status.UPDATED
 
     @staticmethod
     @crud_handler_wrapper
-    def delete_phong(phong_id: int):
-        phong = PhongCRUD.read_phong(phong_id=phong_id)
+    def delete(phong_id: int):
+        phong = CRUD_Phong.read(phong_id=phong_id)
         if not phong:
-            return CRUDStatus.NOT_FOUND
+            return CRUD_Status.NOT_FOUND
         session.delete(phong)
-        return CRUDStatus.DELETED
+        return CRUD_Status.DELETED
 
 
-class NhomTaiSanCRUD:
+class CRUD_NhomTaiSan:
     @staticmethod
     @crud_handler_wrapper
-    def create_nhom_tai_san(ten: str):
+    def create(ten: str):
         new_nhom_tai_san = NhomTaiSan(ten=ten)
         session.add(new_nhom_tai_san)
-        return CRUDStatus.CREATED
+        return CRUD_Status.CREATED
 
     @staticmethod
-    def read_nhom_tai_san(nhom_tai_san_id: int):
+    def read(nhom_tai_san_id: int):
         return session.query(NhomTaiSan).get(nhom_tai_san_id)
     
     @staticmethod
-    def read_all_nhom_tai_san():
+    def read_all():
         return session.query(NhomTaiSan).all()
 
     @staticmethod
     @crud_handler_wrapper
-    def update_nhom_tai_san(nhom_tai_san_id: int, new_ten: str=None):
+    def update(nhom_tai_san_id: int, new_ten: str=None):
         if new_ten:
-            nhom_tai_san = NhomTaiSanCRUD.read_nhom_tai_san(nhom_tai_san_id=nhom_tai_san_id)
+            nhom_tai_san = CRUD_NhomTaiSan.read(nhom_tai_san_id=nhom_tai_san_id)
             if not nhom_tai_san:
-                return CRUDStatus.NOT_FOUND
+                return CRUD_Status.NOT_FOUND
             if new_ten:
                 nhom_tai_san.ten = new_ten
-            return CRUDStatus.UPDATED
+            return CRUD_Status.UPDATED
 
     @staticmethod
     @crud_handler_wrapper
-    def delete_nhom_tai_san(nhom_tai_san_id: int):
-        nhom_tai_san = NhomTaiSanCRUD.read_nhom_tai_san(nhom_tai_san_id=nhom_tai_san_id)
+    def delete(nhom_tai_san_id: int):
+        nhom_tai_san = CRUD_NhomTaiSan.read(nhom_tai_san_id=nhom_tai_san_id)
         if not nhom_tai_san:
-            return CRUDStatus.NOT_FOUND
+            return CRUD_Status.NOT_FOUND
         session.delete(nhom_tai_san)
-        return CRUDStatus.DELETED
+        return CRUD_Status.DELETED
 
-
-class TaiSanCRUD:
+class CRUD_LoaiTaiSan:
     @staticmethod
     @crud_handler_wrapper
-    def create_tai_san(ten: str, ma_phan_loai: str=None, ma_dinh_danh: str=None, ma_serial: str=None, mo_ta: str=None, nam_su_dung: str=None, nhom_tai_san_id: int=None, phong_id: int=None):
-        new_tai_san = TaiSan(ten=ten, ma_phan_loai=ma_phan_loai, ma_dinh_danh=ma_dinh_danh, ma_serial=ma_serial, mo_ta=mo_ta, nam_su_dung=nam_su_dung, nhom_tai_san_id=nhom_tai_san_id, phong_id=phong_id)
-        session.add(new_tai_san)
-        return CRUDStatus.CREATED
+    def create(ten: str, ma: str, nhom_tai_san_id: int=None):
+        new_loai_tai_san = LoaiTaiSan(ten=ten, ma=ma, nhom_tai_san_id=nhom_tai_san_id)
+        session.add(new_loai_tai_san)
+        return CRUD_Status.CREATED
+    
+    @staticmethod
+    def read(loai_tai_san_id: int):
+        return session.query(LoaiTaiSan).get(loai_tai_san_id)
 
     @staticmethod
-    def read_tai_san(tai_san_id: int):
+    def read_all():
+        return session.query(LoaiTaiSan).all()
+    
+    @staticmethod
+    @crud_handler_wrapper
+    def update(loai_tai_san_id: int, new_ten: str, new_ma: str, new_nhom_tai_san_id: int=None):
+        if new_ten or new_ma or new_nhom_tai_san_id:
+            loai_tai_san = CRUD_LoaiTaiSan.read(loai_tai_san_id=loai_tai_san_id)
+            if not loai_tai_san:
+                return CRUD_Status.NOT_FOUND
+            if new_ten:
+                loai_tai_san.ten = new_ten
+            if new_ma:
+                loai_tai_san.ma = new_ma
+            if new_nhom_tai_san_id:
+                loai_tai_san.nhom_tai_san_id = new_nhom_tai_san_id
+            return CRUD_Status.UPDATED
+
+class CRUD_TaiSan:
+    @staticmethod
+    @crud_handler_wrapper
+    def create(ma: str, ma_serial: str=None, mo_ta: str=None, nam_su_dung: str=None, loai_tai_san_id: int=None, phong_id: int=None):
+        new_tai_san = TaiSan(ma=ma, ma_serial=ma_serial, mo_ta=mo_ta, nam_su_dung=nam_su_dung, loai_tai_san_id=loai_tai_san_id, phong_id=phong_id)
+        session.add(new_tai_san)
+        return CRUD_Status.CREATED
+
+    @staticmethod
+    def read(tai_san_id: int):
         return session.query(TaiSan).get(tai_san_id)
     
     @staticmethod
-    def read_all_tai_san():
+    def read_all():
         return session.query(TaiSan).all()
 
     @staticmethod
     @crud_handler_wrapper
-    def update_tai_san(tai_san_id: int, new_ten: str, new_ma_phan_loai: str, new_ma_dinh_danh: str, new_ma_serial: str, new_mo_ta: str, new_nam_su_dung: str, new_nhom_tai_san_id: int, new_phong_id: int):
-        if new_ten or new_ma_phan_loai or new_ma_dinh_danh or new_ma_serial or new_mo_ta or new_nam_su_dung or new_nhom_tai_san_id or new_phong_id:
-            tai_san = TaiSanCRUD.read_tai_san(tai_san_id=tai_san_id)
+    def update(tai_san_id: int, new_ma: str=None, new_ma_serial: str=None, new_mo_ta: str=None, new_nam_su_dung: str=None, new_loai_tai_san_id: int=None, new_phong_id: int=None):
+        if new_ma or new_ma_serial or new_mo_ta or new_nam_su_dung or new_loai_tai_san_id or new_phong_id:
+            tai_san = CRUD_TaiSan.read(tai_san_id=tai_san_id)
             if not tai_san:
-                return CRUDStatus.NOT_FOUND
-            if new_ten:
-                tai_san.ten = new_ten
-            if new_ma_phan_loai:
-                tai_san.ma_phan_loai = new_ma_phan_loai
-            if new_ma_dinh_danh:
-                tai_san.ma_dinh_danh = new_ma_dinh_danh
+                return CRUD_Status.NOT_FOUND
+            if new_ma:
+                tai_san.ma = new_ma
             if new_ma_serial:
                 tai_san.ma_serial = new_ma_serial
             if new_mo_ta:
                 tai_san.mo_ta = new_mo_ta
             if new_nam_su_dung:
                 tai_san.nam_su_dung = new_nam_su_dung
-            if new_nhom_tai_san_id:
-                tai_san.nhom_tai_san_id = new_nhom_tai_san_id
+            if new_loai_tai_san_id:
+                tai_san.loai_tai_san_id = new_loai_tai_san_id
             if new_phong_id:
                 tai_san.phong_id = new_phong_id
-            return CRUDStatus.UPDATED
+            return CRUD_Status.UPDATED
 
     @staticmethod
     @crud_handler_wrapper
-    def delete_tai_san(tai_san_id: int):
-        tai_san = TaiSanCRUD.read_tai_san(tai_san_id=tai_san_id)
+    def delete(tai_san_id: int):
+        tai_san = CRUD_TaiSan.read(tai_san_id=tai_san_id)
         if not tai_san:
-            return CRUDStatus.NOT_FOUND
+            return CRUD_Status.NOT_FOUND
         session.delete(tai_san)
-        return CRUDStatus.DELETED
+        return CRUD_Status.DELETED

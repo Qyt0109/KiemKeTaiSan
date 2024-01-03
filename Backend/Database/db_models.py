@@ -7,24 +7,32 @@ from sqlalchemy.orm import relationship
 Base = declarative_base()
 
 """
+1 Khu có nhiều Phòng, Phòng chỉ thuộc về 1 Khu
 Khu 1-n Phong
+1 Đơn Vị có nhiều Phòng, Phòng chỉ thuộc về 1 Đơn vị
 DonVi 1-n Phong
+1 Cán Bộ có nhiều Phòng, Phòng chỉ thuộc về 1 Cán Bộ
 CanBo 1-n Phong
+1 Nhóm Tài Sản có nhiều Loại Tài Sản, Loại Tài Sản chỉ thuộc về 1 Nhóm Tài Sản
+NhomTaiSan 1-n LoaiTaiSan
+1 Loại Tài Sản có nhiều Tài Sản, Tài Sản chỉ thuộc về 1 Loại Tài Sản
+LoaiTaiSan 1-n TaiSan
+1 Phòng có nhiều Tài Sản, Tài Sản chỉ thuộc về 1 Phòng
 Phong 1-n TaiSan
-NhomTaiSan 1-n TaiSan
 """
 
 class Khu(Base):
     __tablename__ = 'khu'
     id = Column(Integer, primary_key=True, autoincrement=True)
     ten = Column(String, nullable=False, unique=True)   # Khu không được trùng tên
+
     # 1-n Relationships
     phongs = relationship("Phong", back_populates="khu")
 
 class CanBo(Base):
     __tablename__ = "can_bo"
     id = Column(Integer, primary_key=True, autoincrement=True)
-    ten = Column(String, nullable=False)
+    ten = Column(String, nullable=False)    # Cán bộ có thể trùng tên
     sdt = Column(String)
     # 1-n Relationships
     phongs = relationship("Phong", back_populates="can_bo")
@@ -33,14 +41,16 @@ class CanBo(Base):
 class DonVi(Base):
     __tablename__ = "don_vi"
     id = Column(Integer, primary_key=True, autoincrement=True)
-    ten = Column(String, nullable=False, unique=True)   # Đơn vị không được trùng tên
+    ten = Column(String, nullable=False, unique=False)   # Đơn vị có thể trùng tên
+    ma = Column(String, nullable=False, unique=True)   # Đơn vị không được trùng mã
     # 1-n Relationships
     phongs = relationship("Phong", back_populates="don_vi")
 
 class Phong(Base):
     __tablename__ = 'phong'
     id = Column(Integer, primary_key=True, autoincrement=True)
-    ten = Column(String, nullable=False, unique=False)   # Phòng có thể trùng tên (VD P201)
+    ten = Column(String, nullable=False, unique=False)   # Phòng có thể trùng tên (VD Phòng thực tập)
+    ma = Column(String, nullable=False, unique=False)   # Phòng có thể trùng mã (VD P201) nhưng thuộc các khu, đơn vị,... khác nhau nên không thành vấn đề
     thong_tin = Column(String)
     # n-1 Relationships
     khu_id = Column(Integer, ForeignKey('khu.id'))
@@ -57,20 +67,32 @@ class NhomTaiSan(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     ten = Column(String, nullable=False, unique=True)   # Không có nhóm tài sản nào trùng tên nhau (VD không thể Máy tính, Máy tính)
     # 1-n Relationships
-    tai_sans = relationship("TaiSan", back_populates="nhom_tai_san")
+    loai_tai_sans = relationship("LoaiTaiSan", back_populates="nhom_tai_san")
+
+class LoaiTaiSan(Base):
+    __tablename__ = "loai_tai_san"
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    ten = Column(String, nullable=False, unique=False)  # Loại tài sản có thể trùng tên, nhưng thuộc về các nhóm tài sản khác nhau
+    ma = Column(String, nullable=False, unique=False)   # Loại tài sản có thể trùng mã, nhưng thuộc về các nhóm tài sản khác nhau
+    # n-1 Relationships
+    nhom_tai_san_id = Column(Integer, ForeignKey('nhom_tai_san.id'))
+    nhom_tai_san = relationship('NhomTaiSan', back_populates='tai_sans')
+    # 1-n Relationships
+    tai_sans = relationship("TaiSan", back_populates="loai_tai_san")
 
 class TaiSan(Base):
     __tablename__ = "tai_san"
     id = Column(Integer, primary_key=True, autoincrement=True)
-    ten = Column(String, nullable=False, unique=False)  # Có nhiều tài sản cùng tên (VD Tivi LG, Tivi LG)
-    ma_phan_loai = Column(String)
-    ma_dinh_danh = Column(String)
+    # ten = Column(String, nullable=True, unique=False)  # Có nhiều tài sản cùng tên (VD Tivi LG, Tivi LG)
+    # ma_phan_loai = ma_don_vi.ma_phong.ma_loai_tai_san
+    ma = Column(String, nullable=False, unique=False)   # Có nhiều tài sản cùng mã
+    # ma_dinh_danh = ma_phan_loai.ma_tai_san
     ma_serial = Column(String)
     mo_ta = Column(String)
     nam_su_dung = Column(String)
     # n-1 Relationships
-    nhom_tai_san_id = Column(Integer, ForeignKey('nhom_tai_san.id'))
-    nhom_tai_san = relationship('NhomTaiSan', back_populates='tai_sans')
+    loai_tai_san_id = Column(Integer, ForeignKey('loai_tai_san.id'))
+    loai_tai_san = relationship('LoaiTaiSan', back_populates='tai_sans')
     phong_id = Column(Integer, ForeignKey('phong.id'))
     phong = relationship("Phong", back_populates="tai_sans")
 
