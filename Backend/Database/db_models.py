@@ -6,50 +6,90 @@ from sqlalchemy.orm import relationship
 # Create a base class for declarative models
 Base = declarative_base()
 
+"""
+Khu 1-n Phong
+DonVi 1-n Phong
+CanBo 1-n Phong
+Phong 1-n TaiSan
+NhomTaiSan 1-n TaiSan
+"""
+
 class Khu(Base):
     __tablename__ = 'khu'
-    id = Column(Integer, primary_key=True)
-    ten = Column(String)
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    ten = Column(String, nullable=False, unique=True)   # Khu không được trùng tên
+    # 1-n Relationships
     phongs = relationship("Phong", back_populates="khu")
 
-class Phong(Base):
-    __tablename__ = 'phong'
-    id = Column(Integer, primary_key=True)
-    ten = Column(String)
-    khu_id = Column(Integer, ForeignKey('khu.id'))
-    don_vi_id = Column(Integer, ForeignKey('don_vi.id'))
-    # Relationships
-    khu = relationship("Khu", back_populates="phongs")
-    don_vi = relationship("DonVi")
+class CanBo(Base):
+    __tablename__ = "can_bo"
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    ten = Column(String, nullable=False)
+    sdt = Column(String)
+    # 1-n Relationships
+    phongs = relationship("Phong", back_populates="can_bo")
+
 
 class DonVi(Base):
     __tablename__ = "don_vi"
-    id = Column(Integer, primary_key=True)
-    ten = Column(String)
-    phongs = relationship("Phong")
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    ten = Column(String, nullable=False, unique=True)   # Đơn vị không được trùng tên
+    # 1-n Relationships
+    phongs = relationship("Phong", back_populates="don_vi")
+
+class Phong(Base):
+    __tablename__ = 'phong'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    ten = Column(String, nullable=False, unique=False)   # Phòng có thể trùng tên (VD P201)
+    thong_tin = Column(String)
+    # n-1 Relationships
+    khu_id = Column(Integer, ForeignKey('khu.id'))
+    khu = relationship("Khu", back_populates="phongs")
+    don_vi_id = Column(Integer, ForeignKey('don_vi.id'))
+    don_vi = relationship("DonVi", back_populates="phongs")
+    can_bo_id = Column(Integer, ForeignKey('can_bo.id'))
+    can_bo = relationship("CanBo",  back_populates="phongs")
+    # 1-n Relationships
+    tai_sans = relationship("TaiSan", back_populates="phong")
+
+class NhomTaiSan(Base):
+    __tablename__ = "nhom_tai_san"
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    ten = Column(String, nullable=False, unique=True)   # Không có nhóm tài sản nào trùng tên nhau (VD không thể Máy tính, Máy tính)
+    # 1-n Relationships
+    tai_sans = relationship("TaiSan", back_populates="nhom_tai_san")
+
+class TaiSan(Base):
+    __tablename__ = "tai_san"
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    ten = Column(String, nullable=False, unique=False)  # Có nhiều tài sản cùng tên (VD Tivi LG, Tivi LG)
+    ma_phan_loai = Column(String)
+    ma_dinh_danh = Column(String)
+    ma_serial = Column(String)
+    mo_ta = Column(String)
+    nam_su_dung = Column(String)
+    # n-1 Relationships
+    nhom_tai_san_id = Column(Integer, ForeignKey('nhom_tai_san.id'))
+    nhom_tai_san = relationship('NhomTaiSan', back_populates='tai_sans')
+    phong_id = Column(Integer, ForeignKey('phong.id'))
+    phong = relationship("Phong", back_populates="tai_sans")
 
 
 
 """
 # One-to-one
 class Citizen(Base):
-
     __tablename__ = "citizen"
-
     id = Column(Integer, primary_key=True)
     name = Column(String(255), unique=True, nullable=False)
-
     # Relationships
     passport = relationship("Passport")
 
 class Passport(Base):
-
     __tablename__ = "passport"
-
     id = Column(Integer, primary_key=True)
     citizen_id = Column(Integer, ForeignKey("citizen.id"))
     passport_id = Column(String(25), unique=True, nullable=False)
-
     # Relationships
     citizen = relationship("Citizen")
 

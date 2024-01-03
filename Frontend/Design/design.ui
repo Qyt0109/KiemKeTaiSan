@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>600</width>
-    <height>474</height>
+    <width>617</width>
+    <height>500</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -45,6 +45,21 @@
        <enum>QFrame::Raised</enum>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_3">
+       <property name="spacing">
+        <number>0</number>
+       </property>
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
        <item>
         <widget class="QFrame" name="frame_2">
          <property name="styleSheet">
@@ -57,7 +72,7 @@ color: rgb(255, 255, 255);</string>
          <property name="frameShadow">
           <enum>QFrame::Raised</enum>
          </property>
-         <layout class="QVBoxLayout" name="verticalLayout_24">
+         <layout class="QHBoxLayout" name="horizontalLayout_8">
           <property name="leftMargin">
            <number>0</number>
           </property>
@@ -65,7 +80,27 @@ color: rgb(255, 255, 255);</string>
            <number>0</number>
           </property>
           <item>
+           <widget class="QPushButton" name="pushButton_ToLeft">
+            <property name="text">
+             <string>&lt;</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="pushButton_ToRight">
+            <property name="text">
+             <string>&gt;</string>
+            </property>
+           </widget>
+          </item>
+          <item>
            <widget class="QLabel" name="label">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="text">
              <string>THIẾT BỊ HỖ TRỢ KIỂM KÊ TÀI SẢN
 T07.NVKH.2023.P7.03</string>
@@ -75,7 +110,7 @@ T07.NVKH.2023.P7.03</string>
             </property>
            </widget>
           </item>
-          <item>
+          <item alignment="Qt::AlignRight">
            <widget class="QPushButton" name="pushButton_Test">
             <property name="text">
              <string>Test</string>
@@ -88,7 +123,7 @@ T07.NVKH.2023.P7.03</string>
        <item>
         <widget class="QStackedWidget" name="stackedWidget">
          <property name="currentIndex">
-          <number>5</number>
+          <number>3</number>
          </property>
          <widget class="QWidget" name="page_Login">
           <layout class="QVBoxLayout" name="verticalLayout_6">
@@ -107,60 +142,21 @@ T07.NVKH.2023.P7.03</string>
               <enum>QFrame::Raised</enum>
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_4">
-              <item>
-               <widget class="QLabel" name="label_2">
-                <property name="text">
-                 <string>Đăng nhập vào thiết bị</string>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignCenter</set>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QFrame" name="frame_3">
-                <property name="frameShape">
-                 <enum>QFrame::StyledPanel</enum>
-                </property>
-                <property name="frameShadow">
-                 <enum>QFrame::Raised</enum>
-                </property>
-                <layout class="QHBoxLayout" name="horizontalLayout_2">
-                 <item>
-                  <widget class="QLabel" name="label_3">
-                   <property name="text">
-                    <string>Tài khoản:</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QLineEdit" name="lineEdit_Username"/>
-                 </item>
-                </layout>
-               </widget>
-              </item>
-              <item>
-               <widget class="QFrame" name="frame_5">
-                <property name="frameShape">
-                 <enum>QFrame::StyledPanel</enum>
-                </property>
-                <property name="frameShadow">
-                 <enum>QFrame::Raised</enum>
-                </property>
-                <layout class="QHBoxLayout" name="horizontalLayout">
-                 <item>
-                  <widget class="QLabel" name="label_4">
-                   <property name="text">
-                    <string>Mật khẩu:</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QLineEdit" name="lineEdit_Password"/>
-                 </item>
-                </layout>
-               </widget>
-              </item>
+              <property name="spacing">
+               <number>0</number>
+              </property>
+              <property name="leftMargin">
+               <number>0</number>
+              </property>
+              <property name="topMargin">
+               <number>0</number>
+              </property>
+              <property name="rightMargin">
+               <number>0</number>
+              </property>
+              <property name="bottomMargin">
+               <number>0</number>
+              </property>
               <item>
                <widget class="QFrame" name="frame_6">
                 <property name="frameShape">
@@ -170,6 +166,93 @@ T07.NVKH.2023.P7.03</string>
                  <enum>QFrame::Raised</enum>
                 </property>
                 <layout class="QVBoxLayout" name="verticalLayout_5">
+                 <property name="spacing">
+                  <number>10</number>
+                 </property>
+                 <item>
+                  <widget class="QLabel" name="label_2">
+                   <property name="text">
+                    <string>Đăng nhập vào thiết bị</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignCenter</set>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QFrame" name="frame_3">
+                   <property name="frameShape">
+                    <enum>QFrame::StyledPanel</enum>
+                   </property>
+                   <property name="frameShadow">
+                    <enum>QFrame::Raised</enum>
+                   </property>
+                   <layout class="QHBoxLayout" name="horizontalLayout_2">
+                    <property name="spacing">
+                     <number>0</number>
+                    </property>
+                    <property name="leftMargin">
+                     <number>0</number>
+                    </property>
+                    <property name="topMargin">
+                     <number>0</number>
+                    </property>
+                    <property name="rightMargin">
+                     <number>0</number>
+                    </property>
+                    <property name="bottomMargin">
+                     <number>0</number>
+                    </property>
+                    <item>
+                     <widget class="QLabel" name="label_3">
+                      <property name="text">
+                       <string>Tài khoản:</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QLineEdit" name="lineEdit_Username"/>
+                    </item>
+                   </layout>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QFrame" name="frame_5">
+                   <property name="frameShape">
+                    <enum>QFrame::StyledPanel</enum>
+                   </property>
+                   <property name="frameShadow">
+                    <enum>QFrame::Raised</enum>
+                   </property>
+                   <layout class="QHBoxLayout" name="horizontalLayout">
+                    <property name="spacing">
+                     <number>0</number>
+                    </property>
+                    <property name="leftMargin">
+                     <number>0</number>
+                    </property>
+                    <property name="topMargin">
+                     <number>0</number>
+                    </property>
+                    <property name="rightMargin">
+                     <number>0</number>
+                    </property>
+                    <property name="bottomMargin">
+                     <number>0</number>
+                    </property>
+                    <item>
+                     <widget class="QLabel" name="label_4">
+                      <property name="text">
+                       <string>Mật khẩu:</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QLineEdit" name="lineEdit_Password"/>
+                    </item>
+                   </layout>
+                  </widget>
+                 </item>
                  <item alignment="Qt::AlignHCenter">
                   <widget class="QPushButton" name="pushButton_Login">
                    <property name="maximumSize">
@@ -216,6 +299,21 @@ background-color: rgba(255, 255, 255, 0);</string>
               <enum>QFrame::Raised</enum>
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_8">
+              <property name="spacing">
+               <number>10</number>
+              </property>
+              <property name="leftMargin">
+               <number>0</number>
+              </property>
+              <property name="topMargin">
+               <number>0</number>
+              </property>
+              <property name="rightMargin">
+               <number>0</number>
+              </property>
+              <property name="bottomMargin">
+               <number>0</number>
+              </property>
               <item alignment="Qt::AlignHCenter">
                <widget class="QLabel" name="label_8">
                 <property name="text">
@@ -335,6 +433,21 @@ background-color: rgba(255, 255, 255, 0);</string>
               <enum>QFrame::Raised</enum>
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_10">
+              <property name="spacing">
+               <number>0</number>
+              </property>
+              <property name="leftMargin">
+               <number>0</number>
+              </property>
+              <property name="topMargin">
+               <number>0</number>
+              </property>
+              <property name="rightMargin">
+               <number>0</number>
+              </property>
+              <property name="bottomMargin">
+               <number>0</number>
+              </property>
               <item alignment="Qt::AlignTop">
                <widget class="QFrame" name="frame_12">
                 <property name="frameShape">
@@ -344,6 +457,21 @@ background-color: rgba(255, 255, 255, 0);</string>
                  <enum>QFrame::Raised</enum>
                 </property>
                 <layout class="QVBoxLayout" name="verticalLayout_11">
+                 <property name="spacing">
+                  <number>0</number>
+                 </property>
+                 <property name="leftMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="topMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="rightMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="bottomMargin">
+                  <number>0</number>
+                 </property>
                  <item alignment="Qt::AlignHCenter">
                   <widget class="QLabel" name="label_9">
                    <property name="text">
@@ -353,6 +481,11 @@ background-color: rgba(255, 255, 255, 0);</string>
                  </item>
                  <item>
                   <widget class="QFrame" name="frame_14">
+                   <property name="styleSheet">
+                    <string notr="true">.QPushButton {
+	background-color: rgba(255, 255, 255, 128);
+}</string>
+                   </property>
                    <property name="frameShape">
                     <enum>QFrame::StyledPanel</enum>
                    </property>
@@ -370,7 +503,14 @@ background-color: rgba(255, 255, 255, 0);</string>
                     <item>
                      <widget class="QLineEdit" name="lineEdit_RoomSearch"/>
                     </item>
-                    <item>
+                    <item alignment="Qt::AlignRight">
+                     <widget class="QPushButton" name="pushButton_RoomSearch_ClearFilter">
+                      <property name="text">
+                       <string/>
+                      </property>
+                     </widget>
+                    </item>
+                    <item alignment="Qt::AlignRight">
                      <widget class="QPushButton" name="pushButton_RoomSearch">
                       <property name="styleSheet">
                        <string notr="true"/>
@@ -380,8 +520,11 @@ background-color: rgba(255, 255, 255, 0);</string>
                       </property>
                      </widget>
                     </item>
-                    <item>
+                    <item alignment="Qt::AlignRight">
                      <widget class="QPushButton" name="pushButton_RoomSearchOptions">
+                      <property name="styleSheet">
+                       <string notr="true"/>
+                      </property>
                       <property name="text">
                        <string/>
                       </property>
@@ -391,25 +534,50 @@ background-color: rgba(255, 255, 255, 0);</string>
                   </widget>
                  </item>
                  <item>
-                  <widget class="QComboBox" name="comboBox_RoomSearchOptions">
-                   <property name="enabled">
-                    <bool>true</bool>
+                  <widget class="QFrame" name="frame_RoomSearchOptions">
+                   <property name="frameShape">
+                    <enum>QFrame::StyledPanel</enum>
                    </property>
-                   <item>
-                    <property name="text">
-                     <string>a</string>
-                    </property>
-                   </item>
-                   <item>
-                    <property name="text">
-                     <string>b</string>
-                    </property>
-                   </item>
-                   <item>
-                    <property name="text">
-                     <string>c</string>
-                    </property>
-                   </item>
+                   <property name="frameShadow">
+                    <enum>QFrame::Raised</enum>
+                   </property>
+                   <layout class="QHBoxLayout" name="horizontalLayout_10">
+                    <item alignment="Qt::AlignLeft">
+                     <widget class="QLabel" name="label_11">
+                      <property name="text">
+                       <string>Đơn vị:</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QComboBox" name="comboBox_RoomSearchOptions_DonVi">
+                      <property name="enabled">
+                       <bool>true</bool>
+                      </property>
+                      <property name="sizePolicy">
+                       <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
+                       </sizepolicy>
+                      </property>
+                      <item>
+                       <property name="text">
+                        <string>a</string>
+                       </property>
+                      </item>
+                      <item>
+                       <property name="text">
+                        <string>b</string>
+                       </property>
+                      </item>
+                      <item>
+                       <property name="text">
+                        <string>c</string>
+                       </property>
+                      </item>
+                     </widget>
+                    </item>
+                   </layout>
                   </widget>
                  </item>
                 </layout>
@@ -428,8 +596,8 @@ background-color: rgba(255, 255, 255, 0);</string>
                   <rect>
                    <x>0</x>
                    <y>0</y>
-                   <width>380</width>
-                   <height>510</height>
+                   <width>587</width>
+                   <height>255</height>
                   </rect>
                  </property>
                  <layout class="QVBoxLayout" name="verticalLayout_12">
@@ -442,180 +610,21 @@ background-color: rgba(255, 255, 255, 0);</string>
                      <enum>QFrame::Raised</enum>
                     </property>
                     <layout class="QVBoxLayout" name="verticalLayout_14">
-                     <item>
-                      <widget class="QFrame" name="frame_Khu0">
-                       <property name="frameShape">
-                        <enum>QFrame::StyledPanel</enum>
-                       </property>
-                       <property name="frameShadow">
-                        <enum>QFrame::Raised</enum>
-                       </property>
-                       <layout class="QVBoxLayout" name="verticalLayout_15">
-                        <item>
-                         <widget class="QLabel" name="label_TenKhu0">
-                          <property name="text">
-                           <string>Khu vực nhà D</string>
-                          </property>
-                         </widget>
-                        </item>
-                        <item>
-                         <widget class="QFrame" name="frame_PhongKhu0">
-                          <property name="sizePolicy">
-                           <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-                            <horstretch>0</horstretch>
-                            <verstretch>0</verstretch>
-                           </sizepolicy>
-                          </property>
-                          <property name="frameShape">
-                           <enum>QFrame::StyledPanel</enum>
-                          </property>
-                          <property name="frameShadow">
-                           <enum>QFrame::Raised</enum>
-                          </property>
-                          <layout class="QGridLayout" name="gridLayout_2">
-                           <item row="4" column="0">
-                            <widget class="QPushButton" name="pushButton_K0P4">
-                             <property name="text">
-                              <string>Pxxx</string>
-                             </property>
-                            </widget>
-                           </item>
-                           <item row="0" column="1">
-                            <widget class="QPushButton" name="pushButton_K0P1">
-                             <property name="text">
-                              <string>Pxxx</string>
-                             </property>
-                            </widget>
-                           </item>
-                           <item row="0" column="2">
-                            <widget class="QPushButton" name="pushButton_K0P2">
-                             <property name="text">
-                              <string>Pxxx</string>
-                             </property>
-                            </widget>
-                           </item>
-                           <item row="0" column="0">
-                            <widget class="QPushButton" name="pushButton_K0P0">
-                             <property name="text">
-                              <string>Pxxx</string>
-                             </property>
-                            </widget>
-                           </item>
-                           <item row="0" column="3">
-                            <widget class="QPushButton" name="pushButton_K0P3">
-                             <property name="text">
-                              <string>Pxxx</string>
-                             </property>
-                            </widget>
-                           </item>
-                           <item row="4" column="1">
-                            <widget class="QPushButton" name="pushButton_K0P5">
-                             <property name="text">
-                              <string>Pxxx</string>
-                             </property>
-                            </widget>
-                           </item>
-                          </layout>
-                         </widget>
-                        </item>
-                       </layout>
-                      </widget>
-                     </item>
-                     <item>
-                      <widget class="QFrame" name="frame_Khu1">
-                       <property name="sizePolicy">
-                        <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-                         <horstretch>0</horstretch>
-                         <verstretch>0</verstretch>
-                        </sizepolicy>
-                       </property>
-                       <property name="frameShape">
-                        <enum>QFrame::StyledPanel</enum>
-                       </property>
-                       <property name="frameShadow">
-                        <enum>QFrame::Raised</enum>
-                       </property>
-                       <layout class="QGridLayout" name="gridLayout">
-                        <item row="0" column="0">
-                         <widget class="QLabel" name="label_TenKhu1">
-                          <property name="text">
-                           <string>Khu vực thư viện</string>
-                          </property>
-                         </widget>
-                        </item>
-                        <item row="1" column="0">
-                         <widget class="QPushButton" name="pushButton_10">
-                          <property name="text">
-                           <string>Pxxx</string>
-                          </property>
-                         </widget>
-                        </item>
-                        <item row="8" column="0">
-                         <widget class="QPushButton" name="pushButton_6">
-                          <property name="text">
-                           <string>Pxxx</string>
-                          </property>
-                         </widget>
-                        </item>
-                        <item row="1" column="1">
-                         <widget class="QPushButton" name="pushButton_13">
-                          <property name="text">
-                           <string>Pxxx</string>
-                          </property>
-                         </widget>
-                        </item>
-                        <item row="1" column="2">
-                         <widget class="QPushButton" name="pushButton_12">
-                          <property name="text">
-                           <string>Pxxx</string>
-                          </property>
-                         </widget>
-                        </item>
-                        <item row="7" column="0">
-                         <widget class="QPushButton" name="pushButton_11">
-                          <property name="text">
-                           <string>Pxxx</string>
-                          </property>
-                         </widget>
-                        </item>
-                        <item row="4" column="0">
-                         <widget class="QPushButton" name="pushButton_8">
-                          <property name="text">
-                           <string>Pxxx</string>
-                          </property>
-                         </widget>
-                        </item>
-                        <item row="9" column="0">
-                         <widget class="QPushButton" name="pushButton_9">
-                          <property name="text">
-                           <string>Pxxx</string>
-                          </property>
-                         </widget>
-                        </item>
-                        <item row="10" column="0">
-                         <widget class="QPushButton" name="pushButton_15">
-                          <property name="text">
-                           <string>Pxxx</string>
-                          </property>
-                         </widget>
-                        </item>
-                        <item row="6" column="0">
-                         <widget class="QPushButton" name="pushButton_14">
-                          <property name="text">
-                           <string>Pxxx</string>
-                          </property>
-                         </widget>
-                        </item>
-                        <item row="5" column="0">
-                         <widget class="QPushButton" name="pushButton_7">
-                          <property name="text">
-                           <string>Pxxx</string>
-                          </property>
-                         </widget>
-                        </item>
-                       </layout>
-                      </widget>
-                     </item>
+                     <property name="spacing">
+                      <number>0</number>
+                     </property>
+                     <property name="leftMargin">
+                      <number>0</number>
+                     </property>
+                     <property name="topMargin">
+                      <number>0</number>
+                     </property>
+                     <property name="rightMargin">
+                      <number>0</number>
+                     </property>
+                     <property name="bottomMargin">
+                      <number>0</number>
+                     </property>
                     </layout>
                    </widget>
                   </item>
@@ -660,314 +669,133 @@ background-color: rgba(255, 255, 255, 0);</string>
            </item>
           </layout>
          </widget>
-         <widget class="QWidget" name="page_Check">
-          <layout class="QVBoxLayout" name="verticalLayout_20">
+         <widget class="QWidget" name="page_RoomInfo">
+          <layout class="QVBoxLayout" name="verticalLayout_25">
            <item>
-            <widget class="QFrame" name="frame_19">
+            <widget class="QFrame" name="frame_13">
              <property name="frameShape">
               <enum>QFrame::StyledPanel</enum>
              </property>
              <property name="frameShadow">
               <enum>QFrame::Raised</enum>
              </property>
-             <layout class="QVBoxLayout" name="verticalLayout_13">
+             <layout class="QVBoxLayout" name="verticalLayout_26">
+              <property name="spacing">
+               <number>0</number>
+              </property>
+              <property name="leftMargin">
+               <number>0</number>
+              </property>
+              <property name="topMargin">
+               <number>0</number>
+              </property>
+              <property name="rightMargin">
+               <number>0</number>
+              </property>
+              <property name="bottomMargin">
+               <number>0</number>
+              </property>
               <item alignment="Qt::AlignTop">
-               <widget class="QFrame" name="frame_20">
+               <widget class="QFrame" name="frame_16">
                 <property name="frameShape">
                  <enum>QFrame::StyledPanel</enum>
                 </property>
                 <property name="frameShadow">
                  <enum>QFrame::Raised</enum>
                 </property>
-                <layout class="QVBoxLayout" name="verticalLayout_16">
-                 <item alignment="Qt::AlignHCenter">
-                  <widget class="QLabel" name="label_13">
+                <layout class="QVBoxLayout" name="verticalLayout_27">
+                 <property name="spacing">
+                  <number>0</number>
+                 </property>
+                 <property name="leftMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="topMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="rightMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="bottomMargin">
+                  <number>0</number>
+                 </property>
+                 <item alignment="Qt::AlignHCenter|Qt::AlignTop">
+                  <widget class="QLabel" name="label_RoomInfo_TenPhong">
                    <property name="text">
-                    <string>Kiểm kê tài sản</string>
+                    <string>Ten Phong</string>
                    </property>
                   </widget>
                  </item>
-                 <item>
-                  <widget class="QFrame" name="frame_21">
+                 <item alignment="Qt::AlignLeft">
+                  <widget class="QFrame" name="frame_18">
                    <property name="frameShape">
                     <enum>QFrame::StyledPanel</enum>
                    </property>
                    <property name="frameShadow">
                     <enum>QFrame::Raised</enum>
                    </property>
-                   <layout class="QHBoxLayout" name="horizontalLayout_8">
+                   <layout class="QHBoxLayout" name="horizontalLayout_14">
+                    <property name="spacing">
+                     <number>5</number>
+                    </property>
+                    <property name="leftMargin">
+                     <number>0</number>
+                    </property>
+                    <property name="topMargin">
+                     <number>0</number>
+                    </property>
+                    <property name="rightMargin">
+                     <number>0</number>
+                    </property>
+                    <property name="bottomMargin">
+                     <number>0</number>
+                    </property>
                     <item>
-                     <widget class="QLabel" name="label_14">
+                     <widget class="QPushButton" name="pushButton_RoomInfo_Info">
                       <property name="text">
-                       <string>Tìm kiếm:</string>
+                       <string>Thông tin</string>
                       </property>
                      </widget>
                     </item>
                     <item>
-                     <widget class="QLineEdit" name="lineEdit_RoomSearch_2"/>
-                    </item>
-                    <item>
-                     <widget class="QPushButton" name="pushButton_RoomSearch_2">
-                      <property name="styleSheet">
-                       <string notr="true"/>
-                      </property>
+                     <widget class="QPushButton" name="pushButton_RoomInfo_DanhMuc">
                       <property name="text">
-                       <string/>
+                       <string>Danh mục</string>
                       </property>
                      </widget>
                     </item>
                     <item>
-                     <widget class="QPushButton" name="pushButton_RoomSearchOptions_2">
+                     <widget class="QPushButton" name="pushButton_RoomInfo_KiemKe">
                       <property name="text">
-                       <string/>
+                       <string>Kiểm kê tài sản</string>
                       </property>
                      </widget>
                     </item>
                    </layout>
                   </widget>
                  </item>
-                 <item>
-                  <widget class="QComboBox" name="comboBox_RoomSearchOptions_2">
-                   <property name="enabled">
-                    <bool>true</bool>
-                   </property>
-                   <item>
-                    <property name="text">
-                     <string>a</string>
-                    </property>
-                   </item>
-                   <item>
-                    <property name="text">
-                     <string>b</string>
-                    </property>
-                   </item>
-                   <item>
-                    <property name="text">
-                     <string>c</string>
-                    </property>
-                   </item>
-                  </widget>
-                 </item>
                 </layout>
                </widget>
               </item>
               <item>
-               <widget class="QScrollArea" name="scrollArea_Rooms_2">
-                <property name="mouseTracking">
-                 <bool>false</bool>
+               <widget class="QFrame" name="frame_RoomInfo">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
                 </property>
-                <property name="widgetResizable">
-                 <bool>true</bool>
+                <property name="frameShape">
+                 <enum>QFrame::StyledPanel</enum>
                 </property>
-                <widget class="QWidget" name="scrollAreaWidgetContents_2">
-                 <property name="geometry">
-                  <rect>
-                   <x>0</x>
-                   <y>0</y>
-                   <width>281</width>
-                   <height>648</height>
-                  </rect>
-                 </property>
-                 <layout class="QVBoxLayout" name="verticalLayout_17">
-                  <item>
-                   <widget class="QFrame" name="frame_22">
-                    <property name="frameShape">
-                     <enum>QFrame::StyledPanel</enum>
-                    </property>
-                    <property name="frameShadow">
-                     <enum>QFrame::Raised</enum>
-                    </property>
-                    <layout class="QVBoxLayout" name="verticalLayout_18">
-                     <item>
-                      <widget class="QLabel" name="label_15">
-                       <property name="text">
-                        <string>Khu vực nhà D</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item>
-                      <widget class="QFrame" name="frame_23">
-                       <property name="frameShape">
-                        <enum>QFrame::StyledPanel</enum>
-                       </property>
-                       <property name="frameShadow">
-                        <enum>QFrame::Raised</enum>
-                       </property>
-                       <layout class="QVBoxLayout" name="verticalLayout_19">
-                        <item>
-                         <widget class="QFrame" name="frame_24">
-                          <property name="sizePolicy">
-                           <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-                            <horstretch>0</horstretch>
-                            <verstretch>0</verstretch>
-                           </sizepolicy>
-                          </property>
-                          <property name="frameShape">
-                           <enum>QFrame::StyledPanel</enum>
-                          </property>
-                          <property name="frameShadow">
-                           <enum>QFrame::Raised</enum>
-                          </property>
-                          <layout class="QGridLayout" name="gridLayout_3">
-                           <item row="3" column="0">
-                            <widget class="QPushButton" name="pushButton_25">
-                             <property name="text">
-                              <string>Pxxx</string>
-                             </property>
-                            </widget>
-                           </item>
-                           <item row="4" column="0">
-                            <widget class="QPushButton" name="pushButton_26">
-                             <property name="text">
-                              <string>Pxxx</string>
-                             </property>
-                            </widget>
-                           </item>
-                           <item row="0" column="1">
-                            <widget class="QPushButton" name="pushButton_27">
-                             <property name="text">
-                              <string>Pxxx</string>
-                             </property>
-                            </widget>
-                           </item>
-                           <item row="2" column="0">
-                            <widget class="QPushButton" name="pushButton_28">
-                             <property name="text">
-                              <string>Pxxx</string>
-                             </property>
-                            </widget>
-                           </item>
-                           <item row="6" column="0">
-                            <widget class="QPushButton" name="pushButton_18">
-                             <property name="text">
-                              <string>Pxxx</string>
-                             </property>
-                            </widget>
-                           </item>
-                           <item row="5" column="0">
-                            <widget class="QPushButton" name="pushButton_19">
-                             <property name="text">
-                              <string>Pxxx</string>
-                             </property>
-                            </widget>
-                           </item>
-                           <item row="0" column="0">
-                            <widget class="QPushButton" name="pushButton_29">
-                             <property name="text">
-                              <string>Pxxx</string>
-                             </property>
-                            </widget>
-                           </item>
-                          </layout>
-                         </widget>
-                        </item>
-                       </layout>
-                      </widget>
-                     </item>
-                     <item>
-                      <widget class="QLabel" name="label_16">
-                       <property name="text">
-                        <string>Khu vực thư viện</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item>
-                      <widget class="QFrame" name="frame_25">
-                       <property name="sizePolicy">
-                        <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-                         <horstretch>0</horstretch>
-                         <verstretch>0</verstretch>
-                        </sizepolicy>
-                       </property>
-                       <property name="frameShape">
-                        <enum>QFrame::StyledPanel</enum>
-                       </property>
-                       <property name="frameShadow">
-                        <enum>QFrame::Raised</enum>
-                       </property>
-                       <layout class="QGridLayout" name="gridLayout_4">
-                        <item row="0" column="0">
-                         <widget class="QPushButton" name="pushButton_30">
-                          <property name="text">
-                           <string>Pxxx</string>
-                          </property>
-                         </widget>
-                        </item>
-                        <item row="0" column="1">
-                         <widget class="QPushButton" name="pushButton_31">
-                          <property name="text">
-                           <string>Pxxx</string>
-                          </property>
-                         </widget>
-                        </item>
-                        <item row="7" column="0">
-                         <widget class="QPushButton" name="pushButton_32">
-                          <property name="text">
-                           <string>Pxxx</string>
-                          </property>
-                         </widget>
-                        </item>
-                        <item row="6" column="0">
-                         <widget class="QPushButton" name="pushButton_33">
-                          <property name="text">
-                           <string>Pxxx</string>
-                          </property>
-                         </widget>
-                        </item>
-                        <item row="3" column="0">
-                         <widget class="QPushButton" name="pushButton_34">
-                          <property name="text">
-                           <string>Pxxx</string>
-                          </property>
-                         </widget>
-                        </item>
-                        <item row="4" column="0">
-                         <widget class="QPushButton" name="pushButton_35">
-                          <property name="text">
-                           <string>Pxxx</string>
-                          </property>
-                         </widget>
-                        </item>
-                        <item row="8" column="0">
-                         <widget class="QPushButton" name="pushButton_36">
-                          <property name="text">
-                           <string>Pxxx</string>
-                          </property>
-                         </widget>
-                        </item>
-                        <item row="9" column="0">
-                         <widget class="QPushButton" name="pushButton_37">
-                          <property name="text">
-                           <string>Pxxx</string>
-                          </property>
-                         </widget>
-                        </item>
-                        <item row="5" column="0">
-                         <widget class="QPushButton" name="pushButton_38">
-                          <property name="text">
-                           <string>Pxxx</string>
-                          </property>
-                         </widget>
-                        </item>
-                        <item row="0" column="2">
-                         <widget class="QPushButton" name="pushButton_39">
-                          <property name="text">
-                           <string>Pxxx</string>
-                          </property>
-                         </widget>
-                        </item>
-                       </layout>
-                      </widget>
-                     </item>
-                    </layout>
-                   </widget>
-                  </item>
-                 </layout>
-                </widget>
+                <property name="frameShadow">
+                 <enum>QFrame::Raised</enum>
+                </property>
+                <layout class="QVBoxLayout" name="verticalLayout_13"/>
                </widget>
               </item>
-              <item alignment="Qt::AlignBottom">
-               <widget class="QFrame" name="frame_26">
+              <item>
+               <widget class="QFrame" name="frame_17">
                 <property name="frameShape">
                  <enum>QFrame::StyledPanel</enum>
                 </property>
@@ -976,20 +804,14 @@ background-color: rgba(255, 255, 255, 0);</string>
                 </property>
                 <layout class="QHBoxLayout" name="horizontalLayout_9">
                  <item alignment="Qt::AlignLeft">
-                  <widget class="QPushButton" name="pushButton_Home_2">
-                   <property name="maximumSize">
-                    <size>
-                     <width>64</width>
-                     <height>64</height>
-                    </size>
-                   </property>
+                  <widget class="QPushButton" name="pushButton_RoomInfo_Home">
                    <property name="text">
                     <string/>
                    </property>
                   </widget>
                  </item>
                  <item alignment="Qt::AlignRight">
-                  <widget class="QPushButton" name="pushButton_Back_2">
+                  <widget class="QPushButton" name="pushButton_RoomInfo_Back">
                    <property name="text">
                     <string/>
                    </property>
@@ -1003,7 +825,6 @@ background-color: rgba(255, 255, 255, 0);</string>
            </item>
           </layout>
          </widget>
-         <widget class="QWidget" name="page_RoomInfo"/>
          <widget class="QWidget" name="page_Test">
           <layout class="QVBoxLayout" name="verticalLayout_2">
            <item>
@@ -1058,8 +879,8 @@ background-color: rgba(255, 255, 255, 0);</string>
                   <rect>
                    <x>0</x>
                    <y>0</y>
-                   <width>522</width>
-                   <height>234</height>
+                   <width>563</width>
+                   <height>326</height>
                   </rect>
                  </property>
                  <layout class="QVBoxLayout" name="verticalLayout_22">
