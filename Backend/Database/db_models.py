@@ -1,6 +1,6 @@
+from datetime import datetime
 from sqlalchemy import Table, create_engine, ForeignKey, Column, Integer, Float, BLOB,Boolean, DATETIME, String, LargeBinary, DateTime, Text, func
 from sqlalchemy.ext.declarative import declarative_base
-from datetime import datetime
 from sqlalchemy.orm import relationship
 
 # Create a base class for declarative models
@@ -36,7 +36,6 @@ class CanBo(Base):
     sdt = Column(String)
     # 1-n Relationships
     phongs = relationship("Phong", back_populates="can_bo")
-
 
 class DonVi(Base):
     __tablename__ = "don_vi"
@@ -76,7 +75,7 @@ class LoaiTaiSan(Base):
     ma = Column(String, nullable=False, unique=False)   # Loại tài sản có thể trùng mã, nhưng thuộc về các nhóm tài sản khác nhau
     # n-1 Relationships
     nhom_tai_san_id = Column(Integer, ForeignKey('nhom_tai_san.id'))
-    nhom_tai_san = relationship('NhomTaiSan', back_populates='tai_sans')
+    nhom_tai_san = relationship('NhomTaiSan', back_populates='loai_tai_sans')
     # 1-n Relationships
     tai_sans = relationship("TaiSan", back_populates="loai_tai_san")
 

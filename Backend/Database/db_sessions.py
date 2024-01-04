@@ -6,7 +6,7 @@ from sqlalchemy import create_engine
 
 # Create an SQLite engine
 # echo = True to logging any SQL query to console
-engine = create_engine("sqlite:///Backend/Database/db.sqlite", echo=True)
+engine = create_engine("sqlite:///Backend/Database/db.sqlite", echo=False)
 
 # Create the table in the database
 Base.metadata.create_all(engine)
