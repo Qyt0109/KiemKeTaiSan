@@ -60,6 +60,7 @@ class Phong(Base):
     can_bo = relationship("CanBo",  back_populates="phongs")
     # 1-n Relationships
     tai_sans = relationship("TaiSan", back_populates="phong")
+    
 
 class NhomTaiSan(Base):
     __tablename__ = "nhom_tai_san"
@@ -79,6 +80,33 @@ class LoaiTaiSan(Base):
     # 1-n Relationships
     tai_sans = relationship("TaiSan", back_populates="loai_tai_san")
 
+class LichSuKiemKe(Base):
+    __tablename__ = "lich_su_kiem_ke"
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    phong_id = Column(Integer, ForeignKey('phong.id'))
+    thoi_gian = Column(DateTime, default=datetime.utcnow())
+    # 1-n relationships
+    ban_ghi_kiem_kes = relationship("BanGhiKiemKe", back_populates="lich_su_kiem_ke")
+
+class BanGhiKiemKe(Base):
+    __tablename__ = "ban_ghi_kiem_ke"
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    trang_thai = Column(String)
+    thoi_gian = Column(DateTime, default=datetime.utcnow())
+    # 1-n relationships
+    
+    # n-1 relationships
+    lich_su_kiem_ke_id = Column(Integer, ForeignKey('lich_su_kiem_ke.id'))
+    lich_su_kiem_ke = relationship("LichSuKiemKe", back_populates="ban_ghi_kiem_kes")
+
+    # n-n relationships
+    tai_sans = relationship("TaiSan", secondary="ban_ghi_kiem_ke_tai_san", back_populates="ban_ghi_kiem_kes")
+
+class BanGhiKiemKe_TaiSan(Base):
+    __tablename__ = "ban_ghi_kiem_ke_tai_san"
+    ban_ghi_kiem_ke_id = Column(Integer, ForeignKey('ban_ghi_kiem_ke.id'), primary_key=True)
+    tai_san_id = Column(Integer, ForeignKey('tai_san.id'), primary_key=True)
+
 class TaiSan(Base):
     __tablename__ = "tai_san"
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -89,13 +117,15 @@ class TaiSan(Base):
     ma_serial = Column(String)
     mo_ta = Column(String)
     nam_su_dung = Column(String)
+    ghi_chu = Column(String)
+    # 1-n relationships
     # n-1 Relationships
     loai_tai_san_id = Column(Integer, ForeignKey('loai_tai_san.id'))
     loai_tai_san = relationship('LoaiTaiSan', back_populates='tai_sans')
     phong_id = Column(Integer, ForeignKey('phong.id'))
     phong = relationship("Phong", back_populates="tai_sans")
-
-
+    # n-n relationships
+    ban_ghi_kiem_kes = relationship("BanGhiKiemKe", secondary="ban_ghi_kiem_ke_tai_san", back_populates="tai_sans")
 
 """
 # One-to-one

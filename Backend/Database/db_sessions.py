@@ -33,7 +33,6 @@ def crud_handler_wrapper(func: Callable)->Callable:
         except Exception as e:
             session.rollback()
             return CRUD_Status.ERROR
-
     return wrapper
 
 class CRUD_Khu:
@@ -194,7 +193,6 @@ class CRUD_Phong:
         session.delete(phong)
         return CRUD_Status.DELETED
 
-
 class CRUD_NhomTaiSan:
     @staticmethod
     @crud_handler_wrapper
@@ -306,4 +304,82 @@ class CRUD_TaiSan:
         if not tai_san:
             return CRUD_Status.NOT_FOUND
         session.delete(tai_san)
+        return CRUD_Status.DELETED
+    
+class CRUD_LichSuKiemKe:
+    @staticmethod
+    @crud_handler_wrapper
+    def create(phong_id:int, thoi_gian:datetime=None):
+        new_lich_su_kiem_ke = LichSuKiemKe(phong_id=phong_id, thoi_gian=thoi_gian)
+        session.add(new_lich_su_kiem_ke)
+        return CRUD_Status.CREATED
+
+    @staticmethod
+    def read(lich_su_kiem_ke_id: int):
+        return session.query(LichSuKiemKe).get(lich_su_kiem_ke_id)
+    
+    @staticmethod
+    def read_all():
+        return session.query(LichSuKiemKe).all()
+    
+    @staticmethod
+    @crud_handler_wrapper
+    def update(lich_su_kiem_ke_id: int, new_phong_id:int, new_thoi_gian:datetime=None):
+        if new_phong_id or new_thoi_gian:
+            lich_su_kiem_ke = CRUD_LichSuKiemKe.read(lich_su_kiem_ke_id=lich_su_kiem_ke_id)
+            if not lich_su_kiem_ke_id:
+                return CRUD_Status.NOT_FOUND
+            if new_phong_id:
+                lich_su_kiem_ke.phong_id = new_phong_id
+            if new_thoi_gian:
+                lich_su_kiem_ke.thoi_gian = new_thoi_gian
+            return CRUD_Status.UPDATED
+        
+    @staticmethod
+    @crud_handler_wrapper
+    def delete(lich_su_kiem_ke_id: int):
+        lich_su_kiem_ke = CRUD_LichSuKiemKe.read(lich_su_kiem_ke_id=lich_su_kiem_ke_id)
+        if not lich_su_kiem_ke:
+            return CRUD_Status.NOT_FOUND
+        session.delete(lich_su_kiem_ke)
+        return CRUD_Status.DELETED
+    
+class CRUD_BanGhiKiemKe:
+    @staticmethod
+    @crud_handler_wrapper
+    def create(lich_su_kiem_ke_id:int, trang_thai:str=None, thoi_gian:datetime=None):
+        new_ban_ghi_kiem_ke = BanGhiKiemKe(lich_su_kiem_ke_id=lich_su_kiem_ke_id, trang_thai=trang_thai, thoi_gian=thoi_gian)
+        session.add(new_ban_ghi_kiem_ke)
+        return CRUD_Status.CREATED
+
+    @staticmethod
+    def read(ban_ghi_kiem_ke_id: int):
+        return session.query(BanGhiKiemKe).get(ban_ghi_kiem_ke_id)
+    
+    @staticmethod
+    def read_all():
+        return session.query(BanGhiKiemKe).all()
+    
+    @staticmethod
+    @crud_handler_wrapper
+    def update(ban_ghi_kiem_ke_id: int, new_lich_su_kiem_ke_id:int, new_trang_thai:str=None, new_thoi_gian:datetime=None):
+        if new_lich_su_kiem_ke_id or new_trang_thai or new_thoi_gian:
+            ban_ghi_kiem_ke = CRUD_BanGhiKiemKe.read(ban_ghi_kiem_ke_id=ban_ghi_kiem_ke_id)
+            if not ban_ghi_kiem_ke:
+                return CRUD_Status.NOT_FOUND
+            if new_lich_su_kiem_ke_id:
+                ban_ghi_kiem_ke.lich_su_kiem_ke_id = new_lich_su_kiem_ke_id
+            if new_trang_thai:
+                ban_ghi_kiem_ke.trang_thai = new_trang_thai
+            if new_thoi_gian:
+                ban_ghi_kiem_ke.thoi_gian = new_thoi_gian
+            return CRUD_Status.UPDATED
+        
+    @staticmethod
+    @crud_handler_wrapper
+    def delete(ban_ghi_kiem_ke_id: int):
+        ban_ghi_kiem_ke = CRUD_BanGhiKiemKe.read(ban_ghi_kiem_ke_id=ban_ghi_kiem_ke_id)
+        if not ban_ghi_kiem_ke:
+            return CRUD_Status.NOT_FOUND
+        session.delete(ban_ghi_kiem_ke)
         return CRUD_Status.DELETED
