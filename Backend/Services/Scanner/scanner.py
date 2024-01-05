@@ -85,7 +85,6 @@ class Scanner:
                 self.device.grab()
                 print("Start scanning from device")
                 shift_active = False
-                start_time = time.time()
 
                 for event in self.device.read_loop():
                     if event.type == evdev.ecodes.EV_KEY:
@@ -97,9 +96,6 @@ class Scanner:
                         elif event.value == VALUE_DOWN:
                             ch = CHARMAP.get(event.code, ERROR_CHARACTER)[1 if shift_active else 0]
                             scanned_string += ch
-
-                    if time.time() - start_time > timeout_seconds:
-                        break  # Timeout reached
 
                 print(scanned_string)
 
