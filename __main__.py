@@ -539,7 +539,7 @@ class MyApplication(QMainWindow):
             for tai_san in tai_san_list:
                 ma_tai_san = f"{phong.don_vi.ma}.{phong.ma}.{loai_tai_san.ma}.{tai_san.ma}"
                 if ma_tai_san == scanned_string:
-                    CRUD_TaiSan.update(tai_san_id=tai_san.id, ghi_chu=BanGhiKiemKeState.IS_AVAILABLE)
+                    CRUD_TaiSan.update(tai_san_id=tai_san.id, ghi_chu=BanGhiKiemKeState.IS_AVAILABLE.value)
     
 
 
@@ -702,7 +702,7 @@ def clearAllWidgets(parent):
 def resetAllTaiSan():
     tai_sans = CRUD_TaiSan.read_all()
     for tai_san in tai_sans:
-        CRUD_TaiSan.update(tai_san_id=tai_san.id, ghi_chu=BanGhiKiemKeState.NOT_AVAILABLE)
+        CRUD_TaiSan.update(tai_san_id=tai_san.id, ghi_chu=BanGhiKiemKeState.NOT_AVAILABLE.value)
 
 
 if __name__ == "__main__":
