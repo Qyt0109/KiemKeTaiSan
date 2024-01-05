@@ -214,6 +214,8 @@ class MyApplication(QMainWindow):
     def toPageQR(self, callback=None):
         self.ui.stackedWidget.setCurrentWidget(self.ui.page_QR)
         self.ui.label_QRCode.setText("Đang chờ đọc QR...")
+        while self.ui.label_QRCode.text() != "Đang chờ đọc QR...":
+            pass
 
         # Process pending events to update the UI
         QCoreApplication.processEvents()
