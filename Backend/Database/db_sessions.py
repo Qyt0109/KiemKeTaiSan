@@ -25,6 +25,7 @@ class CRUD_Status(Enum):
     UPDATED = 'Updated'
     DELETED = 'Deleted'
     ERROR = 'Error'
+    NO_CHANGES = "No changes"
 
 def crud_handler_wrapper(func: Callable)->Callable:
     def wrapper(*args, **kwargs)->Tuple[CRUD_Status, any]:
@@ -265,39 +266,48 @@ class CRUD_LoaiTaiSan:
 class CRUD_TaiSan:
     @staticmethod
     @crud_handler_wrapper
-    def create(ma: str, ma_serial: str=None, mo_ta: str=None, nam_su_dung: str=None, loai_tai_san_id: int=None, phong_id: int=None):
-        new_tai_san = TaiSan(ma=ma, ma_serial=ma_serial, mo_ta=mo_ta, nam_su_dung=nam_su_dung, loai_tai_san_id=loai_tai_san_id, phong_id=phong_id)
+    def create(ma: str, ma_serial: str = None, mo_ta: str = None, nam_su_dung: str = None, loai_tai_san_id: int = None,
+               phong_id: int = None):
+        new_tai_san = TaiSan(ma=ma, ma_serial=ma_serial, mo_ta=mo_ta, nam_su_dung=nam_su_dung,
+                             loai_tai_san_id=loai_tai_san_id, phong_id=phong_id)
         session.add(new_tai_san)
         return CRUD_Status.CREATED
 
     @staticmethod
     def read(tai_san_id: int):
         return session.query(TaiSan).get(tai_san_id)
-    
+
     @staticmethod
     def read_all():
         return session.query(TaiSan).all()
 
     @staticmethod
     @crud_handler_wrapper
-    def update(tai_san_id: int, new_ma: str=None, new_ma_serial: str=None, new_mo_ta: str=None, new_nam_su_dung: str=None, new_loai_tai_san_id: int=None, new_phong_id: int=None):
-        if new_ma or new_ma_serial or new_mo_ta or new_nam_su_dung or new_loai_tai_san_id or new_phong_id:
-            tai_san = CRUD_TaiSan.read(tai_san_id=tai_san_id)
-            if not tai_san:
-                return CRUD_Status.NOT_FOUND
-            if new_ma:
-                tai_san.ma = new_ma
-            if new_ma_serial:
-                tai_san.ma_serial = new_ma_serial
-            if new_mo_ta:
-                tai_san.mo_ta = new_mo_ta
-            if new_nam_su_dung:
-                tai_san.nam_su_dung = new_nam_su_dung
-            if new_loai_tai_san_id:
-                tai_san.loai_tai_san_id = new_loai_tai_san_id
-            if new_phong_id:
-                tai_san.phong_id = new_phong_id
-            return CRUD_Status.UPDATED
+    def update(tai_san_id: int, new_ma: str = None, new_ma_serial: str = None, new_mo_ta: str = None,
+               new_nam_su_dung: str = None, new_loai_tai_san_id: int = None, new_phong_id: int = None):
+        # Check if any changes are provided
+        if not any([new_ma, new_ma_serial, new_mo_ta, new_nam_su_dung, new_loai_tai_san_id, new_phong_id]):
+            return CRUD_Status.NO_CHANGES
+
+        tai_san = CRUD_TaiSan.read(tai_san_id=tai_san_id)
+        if not tai_san:
+            return CRUD_Status.NOT_FOUND
+
+        # Update only the provided fields
+        if new_ma:
+            tai_san.ma = new_ma
+        if new_ma_serial:
+            tai_san.ma_serial = new_ma_serial
+        if new_mo_ta:
+            tai_san.mo_ta = new_mo_ta
+        if new_nam_su_dung:
+            tai_san.nam_su_dung = new_nam_su_dung
+        if new_loai_tai_san_id:
+            tai_san.loai_tai_san_id = new_loai_tai_san_id
+        if new_phong_id:
+            tai_san.phong_id = new_phong_id
+
+        return CRUD_Status.UPDATED
 
     @staticmethod
     @crud_handler_wrapper
@@ -307,7 +317,8 @@ class CRUD_TaiSan:
             return CRUD_Status.NOT_FOUND
         session.delete(tai_san)
         return CRUD_Status.DELETED
-    
+
+ 
 class CRUD_LichSuKiemKe:
     @staticmethod
     @crud_handler_wrapper
