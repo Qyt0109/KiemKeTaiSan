@@ -1,7 +1,14 @@
 # git clone https://github.com/vpatron/barcode_scanner_python.git
 
+from enum import Enum
 import evdev
 import logging
+
+class ScannerStatus(Enum):
+    DEVICE_NOT_FOUND = "Device not found"
+    NO_DEVICE = "No device"
+    READ_ERROR = "Read error"
+
 
 ERROR_CHARACTER = '?'
 VALUE_UP = 0
@@ -59,9 +66,9 @@ CHARMAP = {
 
 class Scanner:
     def __init__(self, vendor_id=None, product_id=None) -> None:
-        self.device = self.set_device(vendor_id, product_id) if vendor_id and product_id else None
+        self.scanner = self.find_device(vendor_id=vendor_id, product_id=product_id)   
 
-    def set_device(self, vendor_id, product_id):
+    def find_device(self, vendor_id, product_id):
         devices = [evdev.InputDevice(path) for path in evdev.list_devices()]
         for device in devices:
             if device.info.vendor == vendor_id and device.info.product == product_id:
@@ -89,10 +96,10 @@ class Scanner:
                 return scanned_string
             except Exception as err:
                 logging.error(err)
-                return None
+                return ScannerStatus.READ_ERROR
         else:
             print("No device avaiable")
-            return None
+            return ScannerStatus.NO_DEVICE
 
 """ Example useagetest.py
 from Backend.Services.Scanner.scanner import Scanner

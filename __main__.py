@@ -31,7 +31,7 @@ from PyQt6.QtGui import (
 from Frontend.Design.design_ui import Ui_MainWindow
 # Scanner
 # from Backend.Services.Scanner.scanner import Scanner
-from Backend.Services.Scanner.fake_scanner import Scanner # fake scanner for developing UI interface
+from Backend.Services.Scanner.fake_scanner import * # fake scanner for developing UI interface
 # Models
 # from Backend.Models.models import *
 # Database
@@ -89,7 +89,15 @@ class MyApplication(QMainWindow):
         self.ui.pushButton_RoomInfo_Home.clicked.connect(self.toPageMainMenu)
         self.ui.pushButton_RoomInfo_Back.clicked.connect(self.backToPageRoomsOrChecks)
         """ Pagge Room Info """
+        """ Page QR """
+        self.ui.pushButton_KiemTraThietBi.clicked.connect(self.toPageQR)
+        """ Page QR """
+        """ Page CreateQR """
+        self.ui.pushButton_ToPageCreateQR.clicked.connect(self.toPageCreateQR)
+        """ Page CreateQR """
+        """ Page Check """
         self.ui.pushButton_Check.clicked.connect(self.toPageCheck)
+        """ Page Check """
 
         # Test
         self.ui.pushButton_Test.clicked.connect(self.toPageTest)
@@ -100,6 +108,9 @@ class MyApplication(QMainWindow):
         # Full screen
         # self.showFullScreen()
         self.toPageMainMenu()
+
+        # Scanner
+        self.scanner = Scanner(vendor_id=0x1a86, product_id=0xe026)
 
     # Icons
     def init_icons(self):
@@ -192,6 +203,27 @@ class MyApplication(QMainWindow):
         else:
             self.ui.pushButton_RoomSearchOptions.setStyleSheet("background-color: rgba(102, 153, 255, 128);")
     """ Page Rooms """
+
+    """ Page CreateQR """
+    def toPageCreateQR(self):
+        self.ui.stackedWidget.setCurrentWidget(self.ui.page_CreateQR)
+    """ Page CreateQR """
+
+    """ Page QR """
+    def toPageQR(self, callback=None):
+        self.ui.stackedWidget.setCurrentWidget(self.ui.page_QR)
+        self.ui.label_QRCode.setText("Đang chờ đọc QR...")
+        scanned_string = self.scanner.read_barcode("ABCD")
+        if scanned_string == ScannerStatus.NO_DEVICE:
+            msg = "Không kết nối được tới thiết bị đọc QR"
+        elif scanned_string == ScannerStatus.READ_ERROR:
+            msg = "Có lỗi xảy ra khi đọc QR"
+        else:
+            msg = scanned_string
+        self.ui.label_QRCode.setText(msg)
+        
+
+    """ Page QR """
 
     """ Page Room info """
     def toPageRoomInfo(self, phong=None):

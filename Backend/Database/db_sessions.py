@@ -386,15 +386,26 @@ class CRUD_BanGhiKiemKe:
         session.delete(ban_ghi_kiem_ke)
         return CRUD_Status.DELETED
     
-class Handler_KiemKe:
-    def __init__(self, phong_id:int) -> None:
-        self.lich_su_kiem_ke = LichSuKiemKe(phong_id=phong_id)
-        self.ban_ghi_kiem_kes = None
+from sqlalchemy.orm import make_transient
 
-        def add(self, ban_ghi_kiem_ke:BanGhiKiemKe):
-            self.ban_ghi_kiem_kes.append(ban_ghi_kiem_ke)
-        
-        def complete(self):
-            self.lich_su_kiem_ke.thoi_gian = datetime.utcnow()
-            self.lich_su_kiem_ke.ban_ghi_kiem_kes = self.ban_ghi_kiem_kes
-            session.commit(self.lich_su_kiem_ke)
+class Handler_KiemKe:
+    def __init__(self, phong_id: int) -> None:
+        self.lich_su_kiem_ke = LichSuKiemKe(phong_id=phong_id)
+        self.ban_ghi_kiem_kes = []
+
+    def add(self, tai_san_id: int, trang_thai: str = None, thoi_gian: datetime = None):
+        ban_ghi_kiem_ke = BanGhiKiemKe(tai_san_id=tai_san_id, trang_thai=trang_thai, thoi_gian=thoi_gian)
+        self.ban_ghi_kiem_kes.append(ban_ghi_kiem_ke)
+
+    def complete(self):
+        self.lich_su_kiem_ke.thoi_gian = datetime.utcnow()
+        self.lich_su_kiem_ke.ban_ghi_kiem_kes = self.ban_ghi_kiem_kes
+
+        # Make the lich_su_kiem_ke and its associated ban_ghi_kiem_kes transient
+        make_transient(self.lich_su_kiem_ke)
+        for ban_ghi_kiem_ke in self.lich_su_kiem_ke.ban_ghi_kiem_kes:
+            make_transient(ban_ghi_kiem_ke)
+
+        # Add the transient objects to the session and commit
+        session.add(self.lich_su_kiem_ke)
+        session.commit()

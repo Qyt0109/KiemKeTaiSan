@@ -1,66 +1,44 @@
 import sys
-import PyQt6
-from PyQt6.QtWidgets import QApplication, QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget, QHeaderView, QPushButton
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, QSize
+from PyQt6.QtGui import QPixmap, QPainter, QIcon
+from PyQt6.QtWidgets import QApplication, QWidget, QPushButton, QVBoxLayout
 
-class ResponsiveTableExample(QWidget):
+class ImageButton(QPushButton):
+    def __init__(self, image_path):
+        super().__init__()
+        self.image_path = image_path
+        # self.setFixedSize(100, 100)  # Set an initial size, adjust as needed
+        # self.setStyleSheet("background-color: transparent; border: none;")
+        self.update_background()
+
+    def update_background(self):
+        pixmap = QPixmap(self.image_path)
+        pixmap = pixmap.scaled(self.size() - QSize(20, 20), Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
+        qicon = QIcon(pixmap)
+        self.setIcon(qicon)
+        self.setIconSize(self.size() - QSize(20, 20))
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        self.update_background()
+
+class MainWindow(QWidget):
     def __init__(self):
         super().__init__()
+        self.init_ui()
 
-        self.initUI()
-
-    def initUI(self):
-        self.setWindowTitle('Responsive Table Example')
-
-        # Create a QTableWidget
-        self.tableWidget = QTableWidget(self)
-        self.tableWidget.setColumnCount(6)
-        self.tableWidget.setHorizontalHeaderLabels(['Column 1', 'Column 2', 'Column 3'])
-
-        # Populate the table with dummy data and buttons
-        self.populateTable()
-
-        # Create a layout and set it for the main window
-        layout = QVBoxLayout()
-        layout.addWidget(self.tableWidget)
+    def init_ui(self):
+        layout = QVBoxLayout(self)
+        image_button = ImageButton("qrcode.png")
+        layout.addWidget(image_button)
         self.setLayout(layout)
 
-        # Set up responsive resizing
-        self.tableWidget.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeMode.ResizeToContents)
-        self.tableWidget.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
-        self.tableWidget.horizontalHeader().setSectionResizeMode(2, QHeaderView.ResizeMode.Stretch)
-        self.tableWidget.horizontalHeader().setSectionResizeMode(3, QHeaderView.ResizeMode.Stretch)
-        self.tableWidget.horizontalHeader().setSectionResizeMode(4, QHeaderView.ResizeMode.Stretch)
-        self.tableWidget.horizontalHeader().setSectionResizeMode(5, QHeaderView.ResizeMode.ResizeToContents)
-        """
-        self.tableWidget.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeMode.ResizeToContents)
-        self.tableWidget.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
-        self.tableWidget.horizontalHeader().setSectionResizeMode(2, QHeaderView.ResizeMode.ResizeToContents)
-        """
-
-    def populateTable(self):
-        data = [
-            ['Row 1', 'Data 1', 'Description 1', 'A', 'B', 'C'],
-            ['Row 2', 'Data 2', 'Description 2', 'D', 'E', 'F'],
-            ['Row 3', 'Data 3', 'Description 3', 'G', 'H', 'I'],
-            ['Row 4', 'Data 4', 'Description 4', 'J', 'K', 'L'],
-        ]
-
-        self.tableWidget.setRowCount(len(data))
-
-        for row, rowData in enumerate(data):
-            for col, item in enumerate(rowData):
-                if col == self.tableWidget.columnCount() - 1:
-                    # Add a button to the last cell of each row
-                    button = QPushButton('Click me', self)
-                    self.tableWidget.setCellWidget(row, col, button)
-                else:
-                    qitem = QTableWidgetItem(item)
-                    qitem.setFlags(qitem.flags() & ~Qt.ItemFlag.ItemIsEditable)
-                    self.tableWidget.setItem(row, col, qitem)
-
-if __name__ == '__main__':
+def main():
     app = QApplication(sys.argv)
-    window = ResponsiveTableExample()
-    window.show()
+    main_window = MainWindow()
+    main_window.setGeometry(100, 100, 300, 200)
+    main_window.show()
     sys.exit(app.exec())
+
+if __name__ == "__main__":
+    main()
