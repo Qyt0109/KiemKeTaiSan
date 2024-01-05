@@ -217,8 +217,9 @@ class MyApplication(QMainWindow):
 
         # Process pending events to update the UI
         QCoreApplication.processEvents()
-
-        scanned_string = self.scanner.read_barcode()
+        self.scanner.read_barcode(callback=self.displayScannedString)
+    
+    def displayScannedString(self, scanned_string=None):
         if scanned_string == ScannerStatus.NO_DEVICE:
             msg = "Không kết nối được tới thiết bị đọc QR"
         elif scanned_string == ScannerStatus.READ_ERROR:

@@ -78,13 +78,13 @@ class Scanner:
         print("Device not found!")
         return None
     
-    def read_barcode(self, timeout_seconds=10):
+    def read_barcode(self, callback=None):
         if self.device:
             scanned_string = ''
             try:
                 self.device.grab()
                 print("Start scanning from device")
-                
+
                 # Clear existing events in the buffer
                 self.clear_device_buffer()
 
@@ -114,6 +114,8 @@ class Scanner:
             print("No device available")
             scanned_string = ScannerStatus.NO_DEVICE
 
+        if callback:
+            callback(scanned_string=scanned_string)
         return scanned_string
 
     def clear_device_buffer(self):
