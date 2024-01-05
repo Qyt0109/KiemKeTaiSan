@@ -1,6 +1,7 @@
 # git clone https://github.com/vpatron/barcode_scanner_python.git
 
 from enum import Enum
+import time
 import evdev
 import logging
 
@@ -77,28 +78,36 @@ class Scanner:
         print("Device not found!")
         return None
     
-    def read_barcode(self):
+    def read_barcode(self, timeout_seconds=10):
         if self.device:
             try:
                 self.device.grab()
                 print("Start scanning from device")
                 scanned_string = ''
                 shift_active = False
+                start_time = time.time()
+
                 for event in self.device.read_loop():
                     if event.code == evdev.ecodes.KEY_ENTER and event.value == VALUE_DOWN:
                         return scanned_string
-                    elif event.code == evdev.ecodes.KEY_LEFTSHIFT or event.code == evdev.ecodes.KEY_RIGHTSHIFT:
+                    elif event.code in [evdev.ecodes.KEY_LEFTSHIFT, evdev.ecodes.KEY_RIGHTSHIFT]:
                         shift_active = event.value == VALUE_DOWN
                     elif event.value == VALUE_DOWN:
                         ch = CHARMAP.get(event.code, ERROR_CHARACTER)[1 if shift_active else 0]
                         scanned_string += ch
+
+                    if time.time() - start_time > timeout_seconds:
+                        break  # Timeout reached
+
                 self.device.ungrab()
                 return scanned_string
+
             except Exception as err:
                 logging.error(err)
                 return ScannerStatus.READ_ERROR
+
         else:
-            print("No device avaiable")
+            print("No device available")
             return ScannerStatus.NO_DEVICE
 
 """ Example useagetest.py
