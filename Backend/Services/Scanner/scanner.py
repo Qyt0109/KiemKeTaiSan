@@ -89,7 +89,10 @@ class Scanner:
 
                 for event in self.device.read_loop():
                     if event.code == evdev.ecodes.KEY_ENTER and event.value == VALUE_DOWN:
+                        self.device.ungrab()
+                        print(scanned_string)
                         return scanned_string
+
                     elif event.code in [evdev.ecodes.KEY_LEFTSHIFT, evdev.ecodes.KEY_RIGHTSHIFT]:
                         shift_active = event.value == VALUE_DOWN
                     elif event.value == VALUE_DOWN:
@@ -100,15 +103,18 @@ class Scanner:
                         break  # Timeout reached
 
                 self.device.ungrab()
-                return scanned_string
+                print(scanned_string)
 
             except Exception as err:
                 logging.error(err)
-                return ScannerStatus.READ_ERROR
+                self.device.ungrab()
+                scanned_string = ScannerStatus.READ_ERROR
 
         else:
             print("No device available")
-            return ScannerStatus.NO_DEVICE
+            scanned_string = ScannerStatus.NO_DEVICE
+
+        return scanned_string
 
 """ Example useagetest.py
 from Backend.Services.Scanner.scanner import Scanner

@@ -107,7 +107,7 @@ class MyApplication(QMainWindow):
         self.ui.pushButton_Test2.clicked.connect(self.test2)
 
         # Full screen
-        self.showFullScreen()
+        # self.showFullScreen()
         self.toPageMainMenu()
 
         # Scanner
