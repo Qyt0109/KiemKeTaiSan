@@ -214,28 +214,33 @@ class MyApplication(QMainWindow):
     def toPageQR(self, callback=None):
         self.ui.stackedWidget.setCurrentWidget(self.ui.page_QR)
         self.ui.label_QRCode.setText("Đang chờ đọc QR...")
+
         # Process pending events to update the UI
         QCoreApplication.processEvents()
 
-         # Add a delay to give the UI time to update
-        time.sleep(0.1)  # Adjust the delay time as needed
+        # Use QTimer to introduce a delay without blocking the event loop
+        delay_timer = QTimer(self)
+        delay_timer.setSingleShot(True)
+        delay_timer.timeout.connect(self.delayed_scan)
+        delay_timer.start(100)  # Adjust the delay time as needed
 
-        # Use QTimer to delay the scanning process
-        timer = QTimer(self)
-        timer.setSingleShot(True)
-        timer.timeout.connect(self.scan_and_update_label)
-        timer.start(100)  # Adjust the delay time as needed
+    def delayed_scan(self):
+        # Continue with the scanning process after the delay
+        scanned_timer = QTimer(self)
+        scanned_timer.setSingleShot(True)
+        scanned_timer.timeout.connect(self.scan_and_update_label)
+        scanned_timer.start(0)  # Start the scanning process as soon as possible
 
     def scan_and_update_label(self):
         scanned_string = self.scanner.read_barcode()
-        
+
         if scanned_string == ScannerStatus.NO_DEVICE:
             msg = "Không kết nối được tới thiết bị đọc QR"
         elif scanned_string == ScannerStatus.READ_ERROR:
             msg = "Có lỗi xảy ra khi đọc QR"
         else:
             msg = scanned_string
-        
+
         self.ui.label_QRCode.setText(msg)
         
 
