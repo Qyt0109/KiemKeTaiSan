@@ -120,7 +120,7 @@ class Scanner:
 
     def clear_device_buffer(self):
         # Read and discard all existing events in the device buffer
-        for _ in self.device.read():
+        for event in self.device.read_loop():
             pass
 
 """ Example useagetest.py
