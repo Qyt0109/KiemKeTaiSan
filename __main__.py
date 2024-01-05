@@ -518,7 +518,7 @@ class MyApplication(QMainWindow):
             table_DanhMuc_Detail.setItem(row, 2, qitem_mo_ta_tai_san)
             table_DanhMuc_Detail.horizontalHeader().setSectionResizeMode(2, QHeaderView.ResizeMode.Stretch)
             # trang thai kiem ke
-            qitem_trang_thai_kiem_ke_tai_san = QTableWidgetItem(tai_san.mo_ta)
+            qitem_trang_thai_kiem_ke_tai_san = QTableWidgetItem(tai_san.ghi_chu)
             qitem_trang_thai_kiem_ke_tai_san.setFlags(qitem_trang_thai_kiem_ke_tai_san.flags() & ~PyQt6.QtCore.Qt.ItemFlag.ItemIsEditable)
             table_DanhMuc_Detail.setItem(row, 3, qitem_trang_thai_kiem_ke_tai_san)
             table_DanhMuc_Detail.horizontalHeader().setSectionResizeMode(3, QHeaderView.ResizeMode.ResizeToContents)
@@ -540,6 +540,7 @@ class MyApplication(QMainWindow):
                 ma_tai_san = f"{phong.don_vi.ma}.{phong.ma}.{loai_tai_san.ma}.{tai_san.ma}"
                 if ma_tai_san == scanned_string:
                     CRUD_TaiSan.update(tai_san_id=tai_san.id, new_ghi_chu=BanGhiKiemKeState.IS_AVAILABLE.value)
+                    self.renderViewRoomInfo_KiemKe_Detail(phong=phong, loai_tai_san=loai_tai_san, tai_san_list=tai_san_list)
     
 
 
