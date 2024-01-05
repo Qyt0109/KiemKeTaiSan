@@ -1,4 +1,5 @@
 Backend/Database/__pycache__
+Backend/Database/connection_string.py
 Frontend/Design/__pycache__
 .VenvMacos
 .vscode

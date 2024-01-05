@@ -1,12 +1,14 @@
 from enum import Enum
 from typing import Callable, List, Tuple
 from Backend.Database.db_models import *
+from Backend.Database.connection_string import connection_string_url
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
 
 # Create an SQLite engine
 # echo = True to logging any SQL query to console
-engine = create_engine("sqlite:///Backend/Database/db.sqlite", echo=False)
+
+engine = create_engine(connection_string_url, echo=True)
 
 # Create the table in the database
 Base.metadata.create_all(engine)
@@ -383,3 +385,16 @@ class CRUD_BanGhiKiemKe:
             return CRUD_Status.NOT_FOUND
         session.delete(ban_ghi_kiem_ke)
         return CRUD_Status.DELETED
+    
+class Handler_KiemKe:
+    def __init__(self, phong_id:int) -> None:
+        self.lich_su_kiem_ke = LichSuKiemKe(phong_id=phong_id)
+        self.ban_ghi_kiem_kes = None
+
+        def add(self, ban_ghi_kiem_ke:BanGhiKiemKe):
+            self.ban_ghi_kiem_kes.append(ban_ghi_kiem_ke)
+        
+        def complete(self):
+            self.lich_su_kiem_ke.thoi_gian = datetime.utcnow()
+            self.lich_su_kiem_ke.ban_ghi_kiem_kes = self.ban_ghi_kiem_kes
+            session.commit(self.lich_su_kiem_ke)

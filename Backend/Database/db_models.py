@@ -24,7 +24,7 @@ Phong 1-n TaiSan
 class Khu(Base):
     __tablename__ = 'khu'
     id = Column(Integer, primary_key=True, autoincrement=True)
-    ten = Column(String, nullable=False, unique=True)   # Khu không được trùng tên
+    ten = Column(String(length=255), nullable=False, unique=True)   # Khu không được trùng tên
 
     # 1-n Relationships
     phongs = relationship("Phong", back_populates="khu")
@@ -32,25 +32,25 @@ class Khu(Base):
 class CanBo(Base):
     __tablename__ = "can_bo"
     id = Column(Integer, primary_key=True, autoincrement=True)
-    ten = Column(String, nullable=False)    # Cán bộ có thể trùng tên
-    sdt = Column(String)
+    ten = Column(String(length=255), nullable=False)    # Cán bộ có thể trùng tên
+    sdt = Column(String(length=255))
     # 1-n Relationships
     phongs = relationship("Phong", back_populates="can_bo")
 
 class DonVi(Base):
     __tablename__ = "don_vi"
     id = Column(Integer, primary_key=True, autoincrement=True)
-    ten = Column(String, nullable=False, unique=False)   # Đơn vị có thể trùng tên
-    ma = Column(String, nullable=False, unique=True)   # Đơn vị không được trùng mã
+    ten = Column(String(length=255), nullable=False, unique=False)   # Đơn vị có thể trùng tên
+    ma = Column(String(length=255), nullable=False, unique=True)   # Đơn vị không được trùng mã
     # 1-n Relationships
     phongs = relationship("Phong", back_populates="don_vi")
 
 class Phong(Base):
     __tablename__ = 'phong'
     id = Column(Integer, primary_key=True, autoincrement=True)
-    ten = Column(String, nullable=False, unique=False)   # Phòng có thể trùng tên (VD Phòng thực tập)
-    ma = Column(String, nullable=False, unique=False)   # Phòng có thể trùng mã (VD P201) nhưng thuộc các khu, đơn vị,... khác nhau nên không thành vấn đề
-    thong_tin = Column(String)
+    ten = Column(String(length=255), nullable=False, unique=False)   # Phòng có thể trùng tên (VD Phòng thực tập)
+    ma = Column(String(length=255), nullable=False, unique=False)   # Phòng có thể trùng mã (VD P201) nhưng thuộc các khu, đơn vị,... khác nhau nên không thành vấn đề
+    thong_tin = Column(String(length=255))
     # n-1 Relationships
     khu_id = Column(Integer, ForeignKey('khu.id'))
     khu = relationship("Khu", back_populates="phongs")
@@ -65,15 +65,15 @@ class Phong(Base):
 class NhomTaiSan(Base):
     __tablename__ = "nhom_tai_san"
     id = Column(Integer, primary_key=True, autoincrement=True)
-    ten = Column(String, nullable=False, unique=True)   # Không có nhóm tài sản nào trùng tên nhau (VD không thể Máy tính, Máy tính)
+    ten = Column(String(length=255), nullable=False, unique=True)   # Không có nhóm tài sản nào trùng tên nhau (VD không thể Máy tính, Máy tính)
     # 1-n Relationships
     loai_tai_sans = relationship("LoaiTaiSan", back_populates="nhom_tai_san")
 
 class LoaiTaiSan(Base):
     __tablename__ = "loai_tai_san"
     id = Column(Integer, primary_key=True, autoincrement=True)
-    ten = Column(String, nullable=False, unique=False)  # Loại tài sản có thể trùng tên, nhưng thuộc về các nhóm tài sản khác nhau
-    ma = Column(String, nullable=False, unique=False)   # Loại tài sản có thể trùng mã, nhưng thuộc về các nhóm tài sản khác nhau
+    ten = Column(String(length=255), nullable=False, unique=False)  # Loại tài sản có thể trùng tên, nhưng thuộc về các nhóm tài sản khác nhau
+    ma = Column(String(length=255), nullable=False, unique=False)   # Loại tài sản có thể trùng mã, nhưng thuộc về các nhóm tài sản khác nhau
     # n-1 Relationships
     nhom_tai_san_id = Column(Integer, ForeignKey('nhom_tai_san.id'))
     nhom_tai_san = relationship('NhomTaiSan', back_populates='loai_tai_sans')
@@ -91,7 +91,7 @@ class LichSuKiemKe(Base):
 class BanGhiKiemKe(Base):
     __tablename__ = "ban_ghi_kiem_ke"
     id = Column(Integer, primary_key=True, autoincrement=True)
-    trang_thai = Column(String)
+    trang_thai = Column(String(length=255))
     thoi_gian = Column(DateTime, default=datetime.utcnow())
     # 1-n relationships
     
@@ -110,14 +110,14 @@ class BanGhiKiemKe_TaiSan(Base):
 class TaiSan(Base):
     __tablename__ = "tai_san"
     id = Column(Integer, primary_key=True, autoincrement=True)
-    # ten = Column(String, nullable=True, unique=False)  # Có nhiều tài sản cùng tên (VD Tivi LG, Tivi LG)
+    # ten = Column(String(length=255), nullable=True, unique=False)  # Có nhiều tài sản cùng tên (VD Tivi LG, Tivi LG)
     # ma_phan_loai = ma_don_vi.ma_phong.ma_loai_tai_san
-    ma = Column(String, nullable=False, unique=False)   # Có nhiều tài sản cùng mã
+    ma = Column(String(length=255), nullable=False, unique=False)   # Có nhiều tài sản cùng mã
     # ma_dinh_danh = ma_phan_loai.ma_tai_san
-    ma_serial = Column(String)
-    mo_ta = Column(String)
-    nam_su_dung = Column(String)
-    ghi_chu = Column(String)
+    ma_serial = Column(String(length=255))
+    mo_ta = Column(String(length=255))
+    nam_su_dung = Column(String(length=255))
+    ghi_chu = Column(String(length=255))
     # 1-n relationships
     # n-1 Relationships
     loai_tai_san_id = Column(Integer, ForeignKey('loai_tai_san.id'))
