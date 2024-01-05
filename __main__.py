@@ -20,6 +20,7 @@ from PyQt6.QtWidgets import (
     QTableWidgetItem,
     QHeaderView
 )
+from PyQt6.QtCore import Qt, QTimer
 from PyQt6.QtGui import (
     QPixmap,
     QIcon,
@@ -106,7 +107,7 @@ class MyApplication(QMainWindow):
         self.ui.pushButton_Test2.clicked.connect(self.test2)
 
         # Full screen
-        # self.showFullScreen()
+        self.showFullScreen()
         self.toPageMainMenu()
 
         # Scanner
@@ -213,13 +214,23 @@ class MyApplication(QMainWindow):
     def toPageQR(self, callback=None):
         self.ui.stackedWidget.setCurrentWidget(self.ui.page_QR)
         self.ui.label_QRCode.setText("Đang chờ đọc QR...")
-        scanned_string = self.scanner.read_barcode("ABCD")
+
+        # Use QTimer to delay the scanning process
+        timer = QTimer(self)
+        timer.setSingleShot(True)
+        timer.timeout.connect(self.scan_and_update_label)
+        timer.start(100)  # Adjust the delay time as needed
+
+    def scan_and_update_label(self):
+        scanned_string = self.scanner.read_barcode()
+        
         if scanned_string == ScannerStatus.NO_DEVICE:
             msg = "Không kết nối được tới thiết bị đọc QR"
         elif scanned_string == ScannerStatus.READ_ERROR:
             msg = "Có lỗi xảy ra khi đọc QR"
         else:
             msg = scanned_string
+        
         self.ui.label_QRCode.setText(msg)
         
 
