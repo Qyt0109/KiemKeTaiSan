@@ -20,7 +20,7 @@ from PyQt6.QtWidgets import (
     QTableWidgetItem,
     QHeaderView
 )
-from PyQt6.QtCore import Qt, QTimer
+from PyQt6.QtCore import Qt, QTimer, QCoreApplication
 from PyQt6.QtGui import (
     QPixmap,
     QIcon,
@@ -214,6 +214,11 @@ class MyApplication(QMainWindow):
     def toPageQR(self, callback=None):
         self.ui.stackedWidget.setCurrentWidget(self.ui.page_QR)
         self.ui.label_QRCode.setText("Đang chờ đọc QR...")
+        # Process pending events to update the UI
+        QCoreApplication.processEvents()
+
+         # Add a delay to give the UI time to update
+        time.sleep(0.1)  # Adjust the delay time as needed
 
         # Use QTimer to delay the scanning process
         timer = QTimer(self)
