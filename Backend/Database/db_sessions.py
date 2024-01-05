@@ -1,13 +1,13 @@
 from enum import Enum
 from typing import Callable, List, Tuple
 from Backend.Database.db_models import *
-from Backend.Database.connection_string import connection_string_url
+from Backend.Database.connection_string import connection_password
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
 
 # Create an SQLite engine
 # echo = True to logging any SQL query to console
-
+connection_string_url = f"mysql+pymysql://3xKs6MSRB2UKUd5.root:{connection_password}@gateway01.ap-northeast-1.prod.aws.tidbcloud.com:4000/test?ssl_ca=/etc/ssl/cert.pem&ssl_verify_cert=true&ssl_verify_identity=true"
 engine = create_engine(connection_string_url, echo=True)
 
 # Create the table in the database
