@@ -21,7 +21,7 @@ def generate_qr_code(data, file_path):
 
 if __name__ == "__main__":
     # Example usage
-    data_to_encode = "@@ Hello QR code!"
+    data_to_encode = "K7.101.MTB.01"
     output_file_path = "qrcode.png"
 
     generate_qr_code(data_to_encode, output_file_path)
