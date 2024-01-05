@@ -87,9 +87,9 @@ class Scanner:
                 print("Start scanning from device")
 
                 # Clear existing events in the buffer
-                if not self.is_first_scan:
+                if self.is_first_scan == False:
                     self.clear_device_buffer()
-                    self.is_first_scan = False
+                self.is_first_scan = False
 
                 shift_active = False
 
