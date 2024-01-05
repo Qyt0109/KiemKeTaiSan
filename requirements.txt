@@ -2,3 +2,4 @@
 pyusb # if "this environment is externally managed" Error: try using "sudo rm /usr/lib/python3.11/EXTERNALLY-MANAGED"
 pymysql
 sqlalchemy
+evdev

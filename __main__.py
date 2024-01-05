@@ -44,6 +44,7 @@ icon_options_path = "Frontend/Resources/Bootstrap/sliders.png"
 icon_home_path = "Frontend/Resources/Bootstrap/house-fill.png"
 icon_back_path = "Frontend/Resources/Bootstrap/arrow-left.png"
 icon_x_path = "Frontend/Resources/Bootstrap/x-lg.png"
+icon_qr_code_path = "Frontend/Resources/Bootstrap/qr-code.png"
 
 class PageRoomsInfoMode(Enum):
     DANH_SACH = "Danh sach"
@@ -53,6 +54,7 @@ class MyApplication(QMainWindow):
     """ Main App class """
     def __init__(self):
         super().__init__()
+        resetAllTaiSan()
         # Set up the user interface from Designer
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
@@ -97,6 +99,7 @@ class MyApplication(QMainWindow):
         self.ui.pushButton_ToPageCreateQR.clicked.connect(self.toPageCreateQR)
         """ Page CreateQR """
         """ Page Check """
+        self.handler_kiem_kes = defaultdict(Handler_KiemKe)
         self.ui.pushButton_Check.clicked.connect(self.toPageCheck)
         """ Page Check """
 
@@ -253,7 +256,7 @@ class MyApplication(QMainWindow):
                 self.ui.pushButton_RoomInfo_DanhMuc.setHidden(True)
                 self.ui.pushButton_RoomInfo_KiemKe.setHidden(False)
                 qpushbutton_clicked_disconnect(self.ui.pushButton_RoomInfo_KiemKe)
-                self.ui.pushButton_RoomInfo_KiemKe.clicked.connect(lambda: self.renderViewRoomInfo_DanhMuc(phong=phong))
+                self.ui.pushButton_RoomInfo_KiemKe.clicked.connect(lambda: self.renderViewRoomInfo_KiemKe(phong=phong))
             else:
                 pass
     
@@ -307,7 +310,7 @@ class MyApplication(QMainWindow):
         layout.addWidget(frame_RoomInfo_Info)
 
     def renderViewRoomInfo_DanhMuc(self, phong):
-        """ Tạo view danh mục với mỗi chế độ view khác nhau (Xem danh sách thuần thuý các phòng/Danh sách kiểm kê các phòng) """
+        """ Tạo view danh mục """
         self.ui.label_RoomInfo_TenPhong.setText(f"Phòng {phong.ma} - {phong.khu.ten}\n{phong.ten}")
         # Setup frame for display RoomInfo_Info
         parent = self.ui.frame_RoomInfo
@@ -322,17 +325,10 @@ class MyApplication(QMainWindow):
         # Display table for all Danh muc
         table_DanhMuc = QtWidgets.QTableWidget(parent=frame_RoomInfo_DanhMuc)
         # Table headers
-        header_labels = []
-        if self.page_rooms_info_mode == PageRoomsInfoMode.DANH_SACH:
-            header_labels = ['STT', 'Mã tài sản', 'Loại tài sản', 'SL', 'Chức năng']
-        elif self.page_rooms_info_mode == PageRoomsInfoMode.KIEM_KE:
-            header_labels = ['STT', 'Mã tài sản', 'Loại tài sản', 'SL', 'Trạng thái', 'Chức năng']
-        else:
-            print("Missing self.page_rooms_info_mode to render coresponding view")
-            return
+        header_labels = ['STT', 'Mã tài sản', 'Loại tài sản', 'SL', 'Chức năng']
         column_count = len(header_labels)
-        table_DanhMuc.setHorizontalHeaderLabels(header_labels)
         table_DanhMuc.setColumnCount(column_count)
+        table_DanhMuc.setHorizontalHeaderLabels(header_labels)
         # Fill NhomTaiSan > LoaiTaiSan
         tai_sans_grouped = defaultdict(lambda: defaultdict(list))   # Dictionary of dictionaries of lists of tai_san
         for tai_san in phong.tai_sans:
@@ -379,22 +375,12 @@ class MyApplication(QMainWindow):
                 qitem_sl = QTableWidgetItem(f"{len(tai_san_list)}")
                 qitem_sl.setFlags(qitem_sl.flags() & ~PyQt6.QtCore.Qt.ItemFlag.ItemIsEditable)
                 table_DanhMuc.setItem(row, 3, qitem_sl)
-                if self.page_rooms_info_mode == PageRoomsInfoMode.DANH_SACH:
-                    # chuc nang
-                    button_detail = QPushButton('Chi tiết', parent)
-                    button_detail.clicked.connect(partial(self.renderViewRoomInfo_DanhMuc_Detail, phong=phong, loai_tai_san=loai_tai_san, tai_san_list=tai_san_list))
-                    table_DanhMuc.setCellWidget(row, 4, button_detail)
-                    table_DanhMuc.horizontalHeader().setSectionResizeMode(4, QHeaderView.ResizeMode.ResizeToContents)
-                elif self.page_rooms_info_mode == PageRoomsInfoMode.KIEM_KE:
-                    # trang thai
-                    qitem_trang_thai_tai_san = QTableWidgetItem('#TODO: Trang thai here')
-                    qitem_trang_thai_tai_san.setFlags(qitem_trang_thai_tai_san.flags() & ~PyQt6.QtCore.Qt.ItemFlag.ItemIsEditable)
-                    table_DanhMuc.setItem(row, 4, qitem_trang_thai_tai_san)
-                    # chuc nang
-                    button_detail = QPushButton('Chi tiết', parent)
-                    button_detail.clicked.connect(partial(self.renderViewRoomInfo_DanhMuc_Detail, phong=phong, loai_tai_san=loai_tai_san, tai_san_list=tai_san_list))
-                    table_DanhMuc.setCellWidget(row, 5, button_detail)
-                    table_DanhMuc.horizontalHeader().setSectionResizeMode(5, QHeaderView.ResizeMode.ResizeToContents)
+                # chi tiet
+                button_detail = QPushButton('Chi tiết', parent)
+                button_detail.clicked.connect(partial(self.renderViewRoomInfo_DanhMuc_Detail, phong=phong, loai_tai_san=loai_tai_san, tai_san_list=tai_san_list))
+                table_DanhMuc.setCellWidget(row, 4, button_detail)
+                table_DanhMuc.horizontalHeader().setSectionResizeMode(4, QHeaderView.ResizeMode.ResizeToContents)
+                
                 row += 1
                 stt += 1
         # Custom display for cols and rows of table
@@ -403,6 +389,160 @@ class MyApplication(QMainWindow):
         # Put the table into layout
         layout_for_frame_RoomInfo_DanhMuc.addWidget(table_DanhMuc)
         layout.addWidget(frame_RoomInfo_DanhMuc)
+
+    def renderViewRoomInfo_KiemKe(self, phong):
+        
+        """ Tạo view kiểm kê """
+        self.ui.label_RoomInfo_TenPhong.setText(f"Phòng {phong.ma} - {phong.khu.ten}\n{phong.ten}")
+        # Setup frame for display RoomInfo_Info
+        parent = self.ui.frame_RoomInfo
+        layout = self.ui.frame_RoomInfo.layout()
+        clearAllWidgets(parent=parent)
+        # Frame for RoomInfo_Info to be setted in frame_RoomInfo
+        frame_RoomInfo_KiemKe = QFrame(parent=parent)
+        frame_RoomInfo_KiemKe.setFrameShape(QFrame.Shape.StyledPanel)   # Optional
+        frame_RoomInfo_KiemKe.setFrameShadow(QFrame.Shadow.Raised)  # Optional
+        # Vertical layout for the frame
+        layout_for_frame_RoomInfo_KiemKe = QVBoxLayout(frame_RoomInfo_KiemKe)
+        # Display table for all Danh muc
+        table_KiemKe = QtWidgets.QTableWidget(parent=frame_RoomInfo_KiemKe)
+        # Table headers
+        header_labels = ['STT', 'Mã tài sản', 'Loại tài sản', 'SL', 'Chức năng']
+        column_count = len(header_labels)
+        table_KiemKe.setColumnCount(column_count)
+        table_KiemKe.setHorizontalHeaderLabels(header_labels)
+        # Fill NhomTaiSan > LoaiTaiSan
+        tai_sans_grouped = defaultdict(lambda: defaultdict(list))   # Dictionary of dictionaries of lists of tai_san
+        for tai_san in phong.tai_sans:
+            loai_tai_san = tai_san.loai_tai_san if tai_san.loai_tai_san else None
+            nhom_tai_san = loai_tai_san.nhom_tai_san if loai_tai_san else None
+            if loai_tai_san and nhom_tai_san:
+                tai_sans_grouped[nhom_tai_san][loai_tai_san].append(tai_san)
+        # Number of row in table = total nhom tai san + total loai tai san
+        row_count = len(tai_sans_grouped)
+        for nhom_tai_san, loai_tai_san_list in tai_sans_grouped.items():
+            row_count += len(loai_tai_san_list)
+        table_KiemKe.setRowCount(row_count)
+        # Display
+        row = 0
+        for nhom_tai_san, loai_tai_san_dict in tai_sans_grouped.items():
+            # Nhom tai san
+            print(f"Nhom tai san: {nhom_tai_san.ten}")
+            # Display ten Nhom Tai San
+            table_KiemKe.setSpan(row, 0, 1, column_count)
+            qitem_ten_danh_muc = QTableWidgetItem(nhom_tai_san.ten)
+            qitem_ten_danh_muc.setFlags(qitem_ten_danh_muc.flags() & ~PyQt6.QtCore.Qt.ItemFlag.ItemIsEditable)
+            table_KiemKe.setItem(row, 0, qitem_ten_danh_muc)
+            row += 1
+            stt = 1
+            for loai_tai_san, tai_san_list in loai_tai_san_dict.items():
+                # Loai tai san
+                print(f"    Loai tai san: {loai_tai_san.ten}")
+                # stt
+                qitem_stt = QTableWidgetItem(f"{stt}")
+                qitem_stt.setFlags(qitem_stt.flags() & ~PyQt6.QtCore.Qt.ItemFlag.ItemIsEditable)
+                table_KiemKe.setItem(row, 0, qitem_stt)
+                table_KiemKe.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeMode.ResizeToContents)
+                # ma
+                qitem_ma_loai_tai_san = QTableWidgetItem(f"{phong.don_vi.ma}.{phong.ma}.{loai_tai_san.ma}")
+                qitem_ma_loai_tai_san.setFlags(qitem_ma_loai_tai_san.flags() & ~PyQt6.QtCore.Qt.ItemFlag.ItemIsEditable)
+                table_KiemKe.setItem(row, 1, qitem_ma_loai_tai_san)
+                table_KiemKe.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeMode.ResizeToContents)
+                # ten
+                qitem_ten_loai_tai_san = QTableWidgetItem(loai_tai_san.ten)
+                qitem_ten_loai_tai_san.setFlags(qitem_ten_loai_tai_san.flags() & ~PyQt6.QtCore.Qt.ItemFlag.ItemIsEditable)
+                table_KiemKe.setItem(row, 2, qitem_ten_loai_tai_san)
+                table_KiemKe.horizontalHeader().setSectionResizeMode(2, QHeaderView.ResizeMode.Stretch)
+                # sl
+                qitem_sl = QTableWidgetItem(f"{len(tai_san_list)}")
+                qitem_sl.setFlags(qitem_sl.flags() & ~PyQt6.QtCore.Qt.ItemFlag.ItemIsEditable)
+                table_KiemKe.setItem(row, 3, qitem_sl)
+                # chuc nang
+                button_detail = QPushButton('Edit', parent)
+                button_detail.clicked.connect(partial(self.renderViewRoomInfo_KiemKe_Detail, phong=phong, loai_tai_san=loai_tai_san, tai_san_list=tai_san_list))
+                table_KiemKe.setCellWidget(row, 4, button_detail)
+                table_KiemKe.horizontalHeader().setSectionResizeMode(4, QHeaderView.ResizeMode.ResizeToContents)
+
+                row += 1
+                stt += 1
+        # Custom display for cols and rows of table
+        table_KiemKe.resizeColumnsToContents()
+        table_KiemKe.resizeRowsToContents()
+        # Put the table into layout
+        layout_for_frame_RoomInfo_KiemKe.addWidget(table_KiemKe)
+        layout.addWidget(frame_RoomInfo_KiemKe)
+
+    def renderViewRoomInfo_KiemKe_Detail(self, phong:Phong, loai_tai_san:LoaiTaiSan, tai_san_list:List[TaiSan]):
+
+        self.ui.label_RoomInfo_TenPhong.setText(f"Phòng {phong.ma} - {phong.khu.ten}\n{phong.ten}")
+        # Setup frame for display RoomInfo_Info
+        parent = self.ui.frame_RoomInfo
+        layout = self.ui.frame_RoomInfo.layout()
+        clearAllWidgets(parent=parent)
+        # Frame for RoomInfo_Info to be setted in frame_RoomInfo
+        frame_RoomInfo_DanhMuc_Detail = QFrame(parent=parent)
+        frame_RoomInfo_DanhMuc_Detail.setFrameShape(QFrame.Shape.StyledPanel)   # Optional
+        frame_RoomInfo_DanhMuc_Detail.setFrameShadow(QFrame.Shadow.Raised)  # Optional
+        # Vertical layout for the frame
+        layout_for_frame_RoomInfo_DanhMuc_Detail = QVBoxLayout(frame_RoomInfo_DanhMuc_Detail)
+        # Display table for all Danh muc
+        table_DanhMuc_Detail = QtWidgets.QTableWidget(parent=frame_RoomInfo_DanhMuc_Detail)
+        # Table headers
+        table_DanhMuc_Detail.setColumnCount(4)
+        table_DanhMuc_Detail.setHorizontalHeaderLabels(['STT', 'Mã định danh tài sản', 'Mô tả chi tiết tài sản', 'Kiểm kê'])
+        # Fill LoaiTaiSan > TaiSan
+        # Number of row in table = ten loai tai san + total tai san
+        row_count = 1 + len(tai_san_list)
+        table_DanhMuc_Detail.setRowCount(row_count)
+        # Display ten Loai Tai San
+        table_DanhMuc_Detail.setSpan(0, 0, 1, 5)  # Merge cells
+        qitem_ten_loai_tai_san = QTableWidgetItem(loai_tai_san.ten)
+        qitem_ten_loai_tai_san.setFlags(qitem_ten_loai_tai_san.flags() & ~PyQt6.QtCore.Qt.ItemFlag.ItemIsEditable)
+        table_DanhMuc_Detail.setItem(0, 0, qitem_ten_loai_tai_san)
+        row = 1
+        stt = 1
+        for tai_san in tai_san_list:
+            # stt
+            qitem_stt = QTableWidgetItem(f"{stt}")
+            qitem_stt.setFlags(qitem_stt.flags() & ~PyQt6.QtCore.Qt.ItemFlag.ItemIsEditable)
+            table_DanhMuc_Detail.setItem(row, 0, qitem_stt)
+            table_DanhMuc_Detail.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeMode.ResizeToContents)
+            # ma
+            qitem_ma_tai_san = QTableWidgetItem(f"{phong.don_vi.ma}.{phong.ma}.{loai_tai_san.ma}.{tai_san.ma}")
+            qitem_ma_tai_san.setFlags(qitem_ma_tai_san.flags() & ~PyQt6.QtCore.Qt.ItemFlag.ItemIsEditable)
+            table_DanhMuc_Detail.setItem(row, 1, qitem_ma_tai_san)
+            table_DanhMuc_Detail.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeMode.ResizeToContents)
+            # mo ta
+            qitem_mo_ta_tai_san = QTableWidgetItem(tai_san.mo_ta if tai_san.mo_ta else '')
+            qitem_mo_ta_tai_san.setFlags(qitem_mo_ta_tai_san.flags() & ~PyQt6.QtCore.Qt.ItemFlag.ItemIsEditable)
+            table_DanhMuc_Detail.setItem(row, 2, qitem_mo_ta_tai_san)
+            table_DanhMuc_Detail.horizontalHeader().setSectionResizeMode(2, QHeaderView.ResizeMode.Stretch)
+            # trang thai kiem ke
+            qitem_trang_thai_kiem_ke_tai_san = QTableWidgetItem(tai_san.ghi_chu)
+            qitem_trang_thai_kiem_ke_tai_san.setFlags(qitem_trang_thai_kiem_ke_tai_san.flags() & ~PyQt6.QtCore.Qt.ItemFlag.ItemIsEditable)
+            table_DanhMuc_Detail.setItem(row, 3, qitem_trang_thai_kiem_ke_tai_san)
+            table_DanhMuc_Detail.horizontalHeader().setSectionResizeMode(3, QHeaderView.ResizeMode.ResizeToContents)
+            
+            row += 1
+            stt += 1
+            
+        # Custom display for cols and rows of table
+        table_DanhMuc_Detail.resizeColumnsToContents()
+        table_DanhMuc_Detail.resizeRowsToContents()
+        # Put the table into layout
+        layout_for_frame_RoomInfo_DanhMuc_Detail.addWidget(table_DanhMuc_Detail)
+        layout.addWidget(frame_RoomInfo_DanhMuc_Detail)
+        # Process pending events to update the UI
+        QCoreApplication.processEvents()
+        scanned_string = self.scanner.read_barcode()
+        if scanned_string != ScannerStatus.NO_DEVICE and scanned_string != ScannerStatus.READ_ERROR:
+            for tai_san in tai_san_list:
+                ma_tai_san = f"{phong.don_vi.ma}.{phong.ma}.{loai_tai_san.ma}.{tai_san.ma}"
+                if ma_tai_san == scanned_string:
+                    CRUD_TaiSan.update(tai_san_id=tai_san.id, ghi_chu=BanGhiKiemKeState.IS_AVAILABLE)
+    
+
+
 
     def renderViewRoomInfo_DanhMuc_Detail(self, phong:Phong, loai_tai_san:LoaiTaiSan, tai_san_list:List[TaiSan]):
         self.ui.label_RoomInfo_TenPhong.setText(f"Phòng {phong.ma} - {phong.khu.ten}\n{phong.ten}")
@@ -447,12 +587,12 @@ class MyApplication(QMainWindow):
             qitem_mo_ta_tai_san = QTableWidgetItem(tai_san.mo_ta if tai_san.mo_ta else '')
             qitem_mo_ta_tai_san.setFlags(qitem_mo_ta_tai_san.flags() & ~PyQt6.QtCore.Qt.ItemFlag.ItemIsEditable)
             table_DanhMuc_Detail.setItem(row, 2, qitem_mo_ta_tai_san)
-            table_DanhMuc_Detail.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeMode.ResizeToContents)
+            table_DanhMuc_Detail.horizontalHeader().setSectionResizeMode(2, QHeaderView.ResizeMode.ResizeToContents)
             # ghi chu
             qitem_ghi_chu_tai_san = QTableWidgetItem(tai_san.ghi_chu if tai_san.ghi_chu else '')
             qitem_ghi_chu_tai_san.setFlags(qitem_ghi_chu_tai_san.flags() & ~PyQt6.QtCore.Qt.ItemFlag.ItemIsEditable)
             table_DanhMuc_Detail.setItem(row, 3, qitem_ghi_chu_tai_san)
-            table_DanhMuc_Detail.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeMode.ResizeToContents)
+            table_DanhMuc_Detail.horizontalHeader().setSectionResizeMode(3, QHeaderView.ResizeMode.ResizeToContents)
             
             row += 1
             stt += 1
@@ -558,6 +698,11 @@ def clearAllWidgets(parent):
             w = layout.takeAt(0).widget()
             if w:
                 w.deleteLater()
+
+def resetAllTaiSan():
+    tai_sans = CRUD_TaiSan.read_all()
+    for tai_san in tai_sans:
+        CRUD_TaiSan.update(tai_san_id=tai_san.id, ghi_chu=BanGhiKiemKeState.NOT_AVAILABLE)
 
 
 if __name__ == "__main__":

@@ -15,5 +15,7 @@ class Scanner:
     def set_device(self, vendor_id, product_id):
         pass
     
-    def read_barcode(self, fake_barcode=None):
-        return fake_barcode
+    def read_barcode(self, scanned_string="FAKE QR CODE", callback=None):
+        if callback:
+            callback(scanned_string=scanned_string)
+        return scanned_string

@@ -60,6 +60,7 @@ class Phong(Base):
     can_bo = relationship("CanBo",  back_populates="phongs")
     # 1-n Relationships
     tai_sans = relationship("TaiSan", back_populates="phong")
+    lich_su_kiem_kes = relationship("LichSuKiemKe", back_populates="phong")
     
 
 class NhomTaiSan(Base):
@@ -81,32 +82,50 @@ class LoaiTaiSan(Base):
     tai_sans = relationship("TaiSan", back_populates="loai_tai_san")
 
 class LichSuKiemKe(Base):
+    """ Lịch Sử Kiểm Kê là bảng lưu các lần kiểm kê của một phòng"""
     __tablename__ = "lich_su_kiem_ke"
     id = Column(Integer, primary_key=True, autoincrement=True)
-    phong_id = Column(Integer, ForeignKey('phong.id'))
     thoi_gian = Column(DateTime, default=datetime.utcnow())
+    """ Thời gian gửi lên hệ thống """
+    # n-1 relationships
+    phong_id = Column(Integer, ForeignKey('phong.id'))
+    """ ID của phòng được kiểm kê """
+    phong = relationship('Phong', back_populates='lich_su_kiem_kes')
+    """ Phòng được kiểm kê """
     # 1-n relationships
     ban_ghi_kiem_kes = relationship("BanGhiKiemKe", back_populates="lich_su_kiem_ke")
+    """ Các bản ghi kiểm kê cho phòng đó """
+
+# Define the association table for the many-to-many relationship
+ban_ghi_kiem_ke_tai_san_association = Table(
+    'ban_ghi_kiem_ke_tai_san',
+    Base.metadata,
+    Column('trang_thai', String(length=255)),  # Additional attribute for the relationship
+    Column('tai_san_id', Integer, ForeignKey('tai_san.id')),
+    Column('ban_ghi_kiem_ke_id', Integer, ForeignKey('ban_ghi_kiem_ke.id')),
+)
 
 class BanGhiKiemKe(Base):
     __tablename__ = "ban_ghi_kiem_ke"
     id = Column(Integer, primary_key=True, autoincrement=True)
-    trang_thai = Column(String(length=255))
     thoi_gian = Column(DateTime, default=datetime.utcnow())
+    """ Thời gian kiểm kê xong """
     # 1-n relationships
-    
     # n-1 relationships
     lich_su_kiem_ke_id = Column(Integer, ForeignKey('lich_su_kiem_ke.id'))
     lich_su_kiem_ke = relationship("LichSuKiemKe", back_populates="ban_ghi_kiem_kes")
-
     # n-n relationships
-    tai_sans = relationship("TaiSan", secondary="ban_ghi_kiem_ke_tai_san", back_populates="ban_ghi_kiem_kes")
+    tai_sans = relationship("TaiSan", secondary=ban_ghi_kiem_ke_tai_san_association, back_populates="ban_ghi_kiem_kes")
 
+"""
 class BanGhiKiemKe_TaiSan(Base):
     __tablename__ = "ban_ghi_kiem_ke_tai_san"
-    ban_ghi_kiem_ke_id = Column(Integer, ForeignKey('ban_ghi_kiem_ke.id'), primary_key=True)
     tai_san_id = Column(Integer, ForeignKey('tai_san.id'), primary_key=True)
-
+    trang_thai = Column(String(length=255))  # Additional attribute for the relationship
+    ban_ghi_kiem_ke_id = Column(Integer, ForeignKey('ban_ghi_kiem_ke.id'), primary_key=True)
+    tai_san = relationship("TaiSan", back_populates="ban_ghi_kiem_ke_tai_san")
+    ban_ghi_kiem_ke = relationship("BanGhiKiemKe", back_populates="ban_ghi_kiem_ke_tai_san")
+"""
 class TaiSan(Base):
     __tablename__ = "tai_san"
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -125,7 +144,7 @@ class TaiSan(Base):
     phong_id = Column(Integer, ForeignKey('phong.id'))
     phong = relationship("Phong", back_populates="tai_sans")
     # n-n relationships
-    ban_ghi_kiem_kes = relationship("BanGhiKiemKe", secondary="ban_ghi_kiem_ke_tai_san", back_populates="tai_sans")
+    ban_ghi_kiem_kes = relationship("BanGhiKiemKe", secondary=ban_ghi_kiem_ke_tai_san_association, back_populates="tai_sans")
 
 """
 # One-to-one

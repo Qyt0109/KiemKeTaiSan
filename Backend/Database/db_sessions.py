@@ -8,7 +8,7 @@ from sqlalchemy import create_engine
 # Create an SQLite engine
 # echo = True to logging any SQL query to console
 connection_string_url = f"mysql+pymysql://3xKs6MSRB2UKUd5.root:{connection_password}@gateway01.ap-northeast-1.prod.aws.tidbcloud.com:4000/test?ssl_ca=/etc/ssl/cert.pem&ssl_verify_cert=true&ssl_verify_identity=true"
-engine = create_engine(connection_string_url, echo=True)
+engine = create_engine(connection_string_url, echo=False)
 
 # Create the table in the database
 Base.metadata.create_all(engine)
@@ -345,7 +345,7 @@ class CRUD_LichSuKiemKe:
             return CRUD_Status.NOT_FOUND
         session.delete(lich_su_kiem_ke)
         return CRUD_Status.DELETED
-    
+
 class CRUD_BanGhiKiemKe:
     @staticmethod
     @crud_handler_wrapper
@@ -388,24 +388,49 @@ class CRUD_BanGhiKiemKe:
     
 from sqlalchemy.orm import make_transient
 
+class BanGhiKiemKeState(Enum):
+    NOT_AVAILABLE = "Chưa kiểm"
+    IS_AVAILABLE = "Đã kiểm"
+    NEW_INCLUDE = "Đã nhập"
+
 class Handler_KiemKe:
     def __init__(self, phong_id: int) -> None:
-        self.lich_su_kiem_ke = LichSuKiemKe(phong_id=phong_id)
-        self.ban_ghi_kiem_kes = []
+        self.lich_su_kiem_ke = None
+        self.ban_ghi_kiem_ke = None
+        self.init_me(phong_id=phong_id)
+    
+    def init_me(self, phong_id: int):
+        try:
+            lich_su_kiem_ke = LichSuKiemKe(phong_id=phong_id)
+            session.add(lich_su_kiem_ke)
+            session.commit()  # Commit to get the ID
+            self.lich_su_kiem_ke = lich_su_kiem_ke
 
-    def add(self, tai_san_id: int, trang_thai: str = None, thoi_gian: datetime = None):
-        ban_ghi_kiem_ke = BanGhiKiemKe(tai_san_id=tai_san_id, trang_thai=trang_thai, thoi_gian=thoi_gian)
-        self.ban_ghi_kiem_kes.append(ban_ghi_kiem_ke)
+            ban_ghi_kiem_ke = BanGhiKiemKe(thoi_gian=datetime.now(), lich_su_kiem_ke_id=lich_su_kiem_ke.id)
+            session.add(ban_ghi_kiem_ke)
+            session.commit()  # Commit to get the ID
+            self.ban_ghi_kiem_ke = ban_ghi_kiem_ke
+
+        except Exception as e:
+            print(f"Error: {e}")
+
+    def add_tai_san(self, tai_san_id: int, trang_thai: str = BanGhiKiemKeState.NOT_AVAILABLE):
+        tai_san = CRUD_TaiSan.read(tai_san_id=tai_san_id)
+        if not tai_san:
+            return CRUD_Status.NOT_FOUND
+
+        association = ban_ghi_kiem_ke_tai_san_association.insert().values(
+            tai_san_id=tai_san_id,
+            ban_ghi_kiem_ke_id=self.ban_ghi_kiem_ke.id,
+            trang_thai=trang_thai
+        )
+        session.execute(association)
 
     def complete(self):
-        self.lich_su_kiem_ke.thoi_gian = datetime.utcnow()
-        self.lich_su_kiem_ke.ban_ghi_kiem_kes = self.ban_ghi_kiem_kes
-
-        # Make the lich_su_kiem_ke and its associated ban_ghi_kiem_kes transient
-        make_transient(self.lich_su_kiem_ke)
-        for ban_ghi_kiem_ke in self.lich_su_kiem_ke.ban_ghi_kiem_kes:
-            make_transient(ban_ghi_kiem_ke)
-
-        # Add the transient objects to the session and commit
-        session.add(self.lich_su_kiem_ke)
-        session.commit()
+        try:
+            self.lich_su_kiem_ke.thoi_gian = datetime.now()
+            # Add the transient objects to the session and commit
+            session.commit()
+        except Exception as e:
+            print(f"Error completing kiem ke: {e}")
+            session.rollback()
