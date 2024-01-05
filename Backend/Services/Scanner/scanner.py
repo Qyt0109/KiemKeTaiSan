@@ -118,10 +118,12 @@ class Scanner:
             callback(scanned_string=scanned_string)
         return scanned_string
 
-    def clear_device_buffer(self):
-        # Read and discard all existing events in the device buffer
+    def clear_device_buffer(self, timeout_seconds=1):
+        # Read and discard events in the device buffer for a limited duration
+        start_time = time.time()
         for event in self.device.read_loop():
-            pass
+            if time.time() - start_time > timeout_seconds:
+                break
 
 """ Example useagetest.py
 from Backend.Services.Scanner.scanner import Scanner
