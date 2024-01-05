@@ -89,6 +89,7 @@ class Scanner:
                 # Clear existing events in the buffer
                 if not self.is_first_scan:
                     self.clear_device_buffer()
+                    self.is_first_scan = False
 
                 shift_active = False
 
