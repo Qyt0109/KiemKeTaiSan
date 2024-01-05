@@ -233,7 +233,6 @@ class MyApplication(QMainWindow):
 
     def scan_and_update_label(self):
         scanned_string = self.scanner.read_barcode()
-
         if scanned_string == ScannerStatus.NO_DEVICE:
             msg = "Không kết nối được tới thiết bị đọc QR"
         elif scanned_string == ScannerStatus.READ_ERROR:

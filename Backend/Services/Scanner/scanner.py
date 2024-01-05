@@ -80,10 +80,10 @@ class Scanner:
     
     def read_barcode(self, timeout_seconds=10):
         if self.device:
+            scanned_string = ''
             try:
                 self.device.grab()
                 print("Start scanning from device")
-                scanned_string = ''
                 shift_active = False
                 start_time = time.time()
 
@@ -105,6 +105,7 @@ class Scanner:
 
             except Exception as err:
                 logging.error(err)
+                scanned_string = ScannerStatus.READ_ERROR
 
             finally:
                 self.device.ungrab()
