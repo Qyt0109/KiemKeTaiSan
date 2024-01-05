@@ -218,20 +218,6 @@ class MyApplication(QMainWindow):
         # Process pending events to update the UI
         QCoreApplication.processEvents()
 
-        # Use QTimer to introduce a delay without blocking the event loop
-        delay_timer = QTimer(self)
-        delay_timer.setSingleShot(True)
-        delay_timer.timeout.connect(self.delayed_scan)
-        delay_timer.start(100)  # Adjust the delay time as needed
-
-    def delayed_scan(self):
-        # Continue with the scanning process after the delay
-        scanned_timer = QTimer(self)
-        scanned_timer.setSingleShot(True)
-        scanned_timer.timeout.connect(self.scan_and_update_label)
-        scanned_timer.start(0)  # Start the scanning process as soon as possible
-
-    def scan_and_update_label(self):
         scanned_string = self.scanner.read_barcode()
         if scanned_string == ScannerStatus.NO_DEVICE:
             msg = "Không kết nối được tới thiết bị đọc QR"
@@ -241,6 +227,8 @@ class MyApplication(QMainWindow):
             msg = scanned_string
 
         self.ui.label_QRCode.setText(msg)
+        # Process pending events to update the UI
+        QCoreApplication.processEvents()
         
 
     """ Page QR """

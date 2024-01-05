@@ -84,6 +84,10 @@ class Scanner:
             try:
                 self.device.grab()
                 print("Start scanning from device")
+                
+                # Clear existing events in the buffer
+                self.clear_device_buffer()
+
                 shift_active = False
 
                 for event in self.device.read_loop():
@@ -111,6 +115,11 @@ class Scanner:
             scanned_string = ScannerStatus.NO_DEVICE
 
         return scanned_string
+
+    def clear_device_buffer(self):
+        # Read and discard all existing events in the device buffer
+        for _ in self.device.read():
+            pass
 
 """ Example useagetest.py
 from Backend.Services.Scanner.scanner import Scanner
