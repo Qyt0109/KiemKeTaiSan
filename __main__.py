@@ -30,8 +30,8 @@ from PyQt6.QtGui import (
 # UI
 from Frontend.Design.design_ui import Ui_MainWindow
 # Scanner
-# from Backend.Services.Scanner.scanner import Scanner
-from Backend.Services.Scanner.fake_scanner import * # fake scanner for developing UI interface
+from Backend.Services.Scanner.scanner import *
+# from Backend.Services.Scanner.fake_scanner import * # fake scanner for developing UI interface
 # Models
 # from Backend.Models.models import *
 # Database
