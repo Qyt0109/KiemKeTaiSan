@@ -16,7 +16,8 @@ from PyQt6.QtWidgets import (
     QLabel,
     QSpacerItem,
     QSizePolicy,
-    QTableWidgetItem
+    QTableWidgetItem,
+    QHeaderView
 )
 from PyQt6.QtGui import (
     QPixmap,
@@ -41,6 +42,10 @@ icon_options_path = "Frontend/Resources/Bootstrap/sliders.png"
 icon_home_path = "Frontend/Resources/Bootstrap/house-fill.png"
 icon_back_path = "Frontend/Resources/Bootstrap/arrow-left.png"
 icon_x_path = "Frontend/Resources/Bootstrap/x-lg.png"
+
+class PageRoomsInfoMode(Enum):
+    DANH_SACH = "Danh sach"
+    KIEM_KE = "Kiem ke"
 
 class MyApplication(QMainWindow):
     """ Main App class """
@@ -90,6 +95,10 @@ class MyApplication(QMainWindow):
         self.ui.pushButton_Test0.clicked.connect(self.test0)
         self.ui.pushButton_Test1.clicked.connect(self.test1)
         self.ui.pushButton_Test2.clicked.connect(self.test2)
+
+        # Full screen
+        # self.showFullScreen()
+        self.toPageMainMenu()
 
     # Icons
     def init_icons(self):
@@ -145,7 +154,7 @@ class MyApplication(QMainWindow):
 
     """ Page Rooms """
     def toPageRooms(self):
-        self.is_view_mode = True
+        self.page_rooms_info_mode = PageRoomsInfoMode.DANH_SACH
         self.renderRooms()
 
     def onClicked_pushButton_RoomSearch_ClearFilter(self):
@@ -160,10 +169,12 @@ class MyApplication(QMainWindow):
             if selected_don_vi_index != 0:
                 selected_don_vi = self.don_vis[selected_don_vi_index - 1]
                 selected_don_vi_id = selected_don_vi.id
+        """ Filtered search
         phongs = search_phong_by_filter(substring=self.ui.lineEdit_RoomSearch.text(),
                                         don_vi_id=selected_don_vi_id)
         for phong in phongs:
             print(phong.ten)
+        """
     
     def onClicked_pushButton_RoomSearchOptions(self):
         is_visible = self.ui.frame_RoomSearchOptions.isVisible()
@@ -178,16 +189,26 @@ class MyApplication(QMainWindow):
 
     """ Page Room info """
     def toPageRoomInfo(self, phong=None):
+        parent = self.ui.frame_RoomInfo
+        clearAllWidgets(parent=parent)
         self.ui.stackedWidget.setCurrentWidget(self.ui.page_RoomInfo)
-        if self.is_view_mode == True:
-            if phong:
-                self.renderViewRoomInfo_Info(phong)
-                self.ui.pushButton_RoomInfo_DanhMuc.disconnect()
+        if phong:
+            self.renderViewRoomInfo_Info(phong)
+            qpushbutton_clicked_disconnect(self.ui.pushButton_RoomInfo_Info)
+            self.ui.pushButton_RoomInfo_Info.clicked.connect(lambda: self.renderViewRoomInfo_Info(phong=phong))
+            
+            if self.page_rooms_info_mode == PageRoomsInfoMode.DANH_SACH:
+                self.ui.pushButton_RoomInfo_DanhMuc.setHidden(False)
+                self.ui.pushButton_RoomInfo_KiemKe.setHidden(True)
+                qpushbutton_clicked_disconnect(self.ui.pushButton_RoomInfo_DanhMuc)
                 self.ui.pushButton_RoomInfo_DanhMuc.clicked.connect(lambda: self.renderViewRoomInfo_DanhMuc(phong=phong))
-        elif self.is_view_mode == False:
-            pass
-        else:
-            pass
+            elif self.page_rooms_info_mode == PageRoomsInfoMode.KIEM_KE:
+                self.ui.pushButton_RoomInfo_DanhMuc.setHidden(True)
+                self.ui.pushButton_RoomInfo_KiemKe.setHidden(False)
+                qpushbutton_clicked_disconnect(self.ui.pushButton_RoomInfo_KiemKe)
+                self.ui.pushButton_RoomInfo_KiemKe.clicked.connect(lambda: self.renderViewRoomInfo_KiemKe(phong=phong))
+            else:
+                pass
     
     def renderViewRoomInfo_Info(self, phong):
         self.ui.label_RoomInfo_TenPhong.setText(f"Phòng {phong.ma} - {phong.khu.ten}\n{phong.ten}")
@@ -195,7 +216,47 @@ class MyApplication(QMainWindow):
         parent = self.ui.frame_RoomInfo
         layout = self.ui.frame_RoomInfo.layout()
         clearAllWidgets(parent=parent)
-        frame_RoomInfo_Info = createRoomInfo_Info_Frame(parent=parent, phong=phong)
+        # Frame for RoomInfo_Info to be setted in frame_RoomInfo
+        frame_RoomInfo_Info = QFrame(parent=parent)
+        frame_RoomInfo_Info.setFrameShape(QFrame.Shape.StyledPanel)   # Optional
+        frame_RoomInfo_Info.setFrameShadow(QFrame.Shadow.Raised)  # Optional
+        # Vertical layout for the frame
+        layout_for_frame_RoomInfo_Info = QVBoxLayout(frame_RoomInfo_Info)
+        # Displaying Info
+        label_ma_phong = QLabel(parent=frame_RoomInfo_Info)
+        label_ma_phong.setText(f"Mã phòng: P.{phong.ma}")
+        layout_for_frame_RoomInfo_Info.addWidget(label_ma_phong)
+
+        label_ten_phong = QLabel(parent=frame_RoomInfo_Info)
+        label_ten_phong.setText(f"Tên phòng: {phong.ten}")
+        layout_for_frame_RoomInfo_Info.addWidget(label_ten_phong)
+
+        label_khu_vuc = QLabel(parent=frame_RoomInfo_Info)
+        label_khu_vuc.setText(f"Khu vực: {phong.khu.ten if phong.khu else ''}")
+        layout_for_frame_RoomInfo_Info.addWidget(label_khu_vuc)
+
+        label_don_vi = QLabel(parent=frame_RoomInfo_Info)
+        label_don_vi.setText(f"Đơn vị quản lý: {phong.don_vi.ten if phong.don_vi else ''}")
+        layout_for_frame_RoomInfo_Info.addWidget(label_don_vi)
+
+        label_can_bo = QLabel(parent=frame_RoomInfo_Info)
+        label_can_bo.setText(f"Cán bộ quản lý: {phong.can_bo.ten if phong.can_bo else ''}")
+        layout_for_frame_RoomInfo_Info.addWidget(label_can_bo)
+
+        label_sdt = QLabel(parent=frame_RoomInfo_Info)
+        label_sdt.setText(f"SĐT liên hệ: {phong.can_bo.sdt if phong.can_bo.sdt else '' if phong.can_bo else ''}")
+        layout_for_frame_RoomInfo_Info.addWidget(label_sdt)
+
+        label_thong_tin = QLabel(parent=frame_RoomInfo_Info)
+        label_thong_tin.setText(f"Thông tin phòng: {phong.thong_tin if phong.thong_tin else ''}")
+        layout_for_frame_RoomInfo_Info.addWidget(label_thong_tin)
+
+        # . . . add more label for phong's properties here ...
+        # Create a vertical spacer as a widget
+        spacer_widget = QWidget(parent=frame_RoomInfo_Info)
+        spacer_widget.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+
+        layout_for_frame_RoomInfo_Info.addWidget(spacer_widget)
         layout.addWidget(frame_RoomInfo_Info)
 
     def renderViewRoomInfo_DanhMuc(self, phong):
@@ -204,14 +265,26 @@ class MyApplication(QMainWindow):
         parent = self.ui.frame_RoomInfo
         layout = self.ui.frame_RoomInfo.layout()
         clearAllWidgets(parent=parent)
-        frame_RoomInfo_Info = createRoomInfo_DanhMuc_Frame(parent=parent, phong=phong)
-        layout.addWidget(frame_RoomInfo_Info)
+        frame_RoomInfo_DanhMuc = createRoomInfo_DanhMuc_Frame(parent=parent, phong=phong)
+        layout.addWidget(frame_RoomInfo_DanhMuc)
+
+    def renderViewRoomInfo_DanhMuc_Detail(self, phong:Phong, loai_tai_san:LoaiTaiSan, tai_san_list:List[TaiSan]):
+        self.ui.label_RoomInfo_TenPhong.setText(f"Phòng {phong.ma} - {phong.khu.ten}\n{phong.ten}")
+        # Setup frame for display RoomInfo_Info
+        parent = self.ui.frame_RoomInfo
+        layout = self.ui.frame_RoomInfo.layout()
+        clearAllWidgets(parent=parent)
+        frame_RoomInfo_DanhMuc_Detail = createRoomInfo_DanhMuc_Detail_Frame(parent=parent, phong=phong, loai_tai_san=loai_tai_san, tai_san_list=tai_san_list)
+        layout.addWidget(frame_RoomInfo_DanhMuc_Detail)
     
     """ Page Room info """
     """ Page Check """
     def toPageCheck(self):
-        self.is_view_mode = False
+        self.page_rooms_info_mode = PageRoomsInfoMode.KIEM_KE
         self.renderRooms()
+
+    def renderViewRoomInfo_KiemKe(self, phong):
+        pass
     """ Page Check """
 
     # Test
@@ -238,7 +311,7 @@ class MyApplication(QMainWindow):
         print(text)
 
 
-def createRoomInfo_DanhMuc_Frame(parent, phong:Phong):
+def createRoomInfo_DanhMuc_Frame(parent, phong:Phong, callback=None):
     # Frame for RoomInfo_Info to be setted in frame_RoomInfo
     frame_RoomInfo_DanhMuc = QFrame(parent=parent)
     frame_RoomInfo_DanhMuc.setFrameShape(QFrame.Shape.StyledPanel)   # Optional
@@ -251,22 +324,22 @@ def createRoomInfo_DanhMuc_Frame(parent, phong:Phong):
     table_DanhMuc.setColumnCount(6)
     table_DanhMuc.setHorizontalHeaderLabels(['STT', 'Mã tài sản', 'Loại tài sản', 'SL', 'Trạng thái', 'Chức năng'])
     # Fill NhomTaiSan > LoaiTaiSan
-    loai_tai_san_grouped = defaultdict(list)   # Dictionary of lists of loai_tai_san
+    tai_sans_grouped = defaultdict(lambda: defaultdict(list))   # Dictionary of dictionaries of lists of tai_san
     for tai_san in phong.tai_sans:
         loai_tai_san = tai_san.loai_tai_san if tai_san.loai_tai_san else None
         nhom_tai_san = loai_tai_san.nhom_tai_san if loai_tai_san else None
         if loai_tai_san and nhom_tai_san:
-            if loai_tai_san not in loai_tai_san_grouped[nhom_tai_san]:
-                loai_tai_san_grouped[nhom_tai_san].append(loai_tai_san)
+            tai_sans_grouped[nhom_tai_san][loai_tai_san].append(tai_san)
     # Number of row in table = total nhom tai san + total loai tai san
-    row_count = len(loai_tai_san_grouped)
-    for nhom_tai_san, loai_tai_san_list in loai_tai_san_grouped.items():
+    row_count = len(tai_sans_grouped)
+    for nhom_tai_san, loai_tai_san_list in tai_sans_grouped.items():
         row_count += len(loai_tai_san_list)
     table_DanhMuc.setRowCount(row_count)
     # Display
     row = 0
-    for nhom_tai_san, loai_tai_san_list in loai_tai_san_grouped.items():
-        print(f"    Nhom Tai San: {nhom_tai_san.ten}")
+    for nhom_tai_san, loai_tai_san_dict in tai_sans_grouped.items():
+        # Nhom tai san
+        print(f"Nhom tai san: {nhom_tai_san.ten}")
         # Display ten Nhom Tai San
         table_DanhMuc.setSpan(row, 0, 1, 6)
         qitem_ten_danh_muc = QTableWidgetItem(nhom_tai_san.ten)
@@ -274,99 +347,80 @@ def createRoomInfo_DanhMuc_Frame(parent, phong:Phong):
         table_DanhMuc.setItem(row, 0, qitem_ten_danh_muc)
         row += 1
         stt = 1
-        for loai_tai_san in loai_tai_san_list:
-            print(f"        Loai Tai San: {loai_tai_san.ten}")
-            for col in range(table_DanhMuc.columnCount()):
-                qitem_ten_loai_tai_san = QTableWidgetItem(f'{stt}' if col == 0 else loai_tai_san.ten if col == 1 else '')
-                qitem_ten_loai_tai_san.setFlags(qitem_ten_loai_tai_san.flags() & ~PyQt6.QtCore.Qt.ItemFlag.ItemIsEditable)
-                table_DanhMuc.setItem(row, col, qitem_ten_loai_tai_san)
+        for loai_tai_san, tai_san_list in loai_tai_san_dict.items():
+            # Loai tai san
+            print(f"    Loai tai san: {loai_tai_san.ten}")
+            # stt
+            qitem_stt = QTableWidgetItem(f"{stt}")
+            qitem_stt.setFlags(qitem_stt.flags() & ~PyQt6.QtCore.Qt.ItemFlag.ItemIsEditable)
+            table_DanhMuc.setItem(row, 0, qitem_stt)
+            table_DanhMuc.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeMode.ResizeToContents)
+            # ma
+            qitem_ma_loai_tai_san = QTableWidgetItem(f"{phong.don_vi.ma}.{phong.ma}.{loai_tai_san.ma}")
+            qitem_ma_loai_tai_san.setFlags(qitem_ma_loai_tai_san.flags() & ~PyQt6.QtCore.Qt.ItemFlag.ItemIsEditable)
+            table_DanhMuc.setItem(row, 1, qitem_ma_loai_tai_san)
+            table_DanhMuc.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeMode.ResizeToContents)
+            # ten
+            qitem_ten_loai_tai_san = QTableWidgetItem(loai_tai_san.ten)
+            qitem_ten_loai_tai_san.setFlags(qitem_ten_loai_tai_san.flags() & ~PyQt6.QtCore.Qt.ItemFlag.ItemIsEditable)
+            table_DanhMuc.setItem(row, 2, qitem_ten_loai_tai_san)
+            table_DanhMuc.horizontalHeader().setSectionResizeMode(2, QHeaderView.ResizeMode.Stretch)
+            # sl
+            qitem_sl = QTableWidgetItem(f"{len(tai_san_list)}")
+            qitem_sl.setFlags(qitem_sl.flags() & ~PyQt6.QtCore.Qt.ItemFlag.ItemIsEditable)
+            table_DanhMuc.setItem(row, 3, qitem_sl)
+            # trang thai
+            qitem_trang_thai = QTableWidgetItem(f"_")
+            qitem_trang_thai.setFlags(qitem_trang_thai.flags() & ~PyQt6.QtCore.Qt.ItemFlag.ItemIsEditable)
+            table_DanhMuc.setItem(row, 4, qitem_trang_thai)
+            # chuc nang
+            button = QPushButton('Chi tiết', parent)
+            if callback:
+                button.clicked.connect(lambda: callback())
+            table_DanhMuc.setCellWidget(row, 5, button)
+            table_DanhMuc.horizontalHeader().setSectionResizeMode(5, QHeaderView.ResizeMode.ResizeToContents)
+
             row += 1
             stt += 1
+    # Custom display for cols and rows of table
+    table_DanhMuc.resizeColumnsToContents()
+    table_DanhMuc.resizeRowsToContents()
     # Put the table into layout
     layout_for_frame_RoomInfo_DanhMuc.addWidget(table_DanhMuc)
     return frame_RoomInfo_DanhMuc
+
+def createRoomInfo_DanhMuc_Detail_Frame(parent, phong:Phong, loai_tai_san:LoaiTaiSan, tai_san_list:List[TaiSan]):
+    # Frame for RoomInfo_Info to be setted in frame_RoomInfo
+    frame_RoomInfo_DanhMuc_Detail = QFrame(parent=parent)
+    frame_RoomInfo_DanhMuc_Detail.setFrameShape(QFrame.Shape.StyledPanel)   # Optional
+    frame_RoomInfo_DanhMuc_Detail.setFrameShadow(QFrame.Shadow.Raised)  # Optional
+    # Vertical layout for the frame
+    layout_for_frame_RoomInfo_DanhMuc_Detail = QVBoxLayout(frame_RoomInfo_DanhMuc_Detail)
+    # Display table for all Danh muc
+    table_DanhMuc_Detail = QtWidgets.QTableWidget(parent=frame_RoomInfo_DanhMuc_Detail)
+    # Table headers
+    table_DanhMuc_Detail.setColumnCount(5)
+    table_DanhMuc_Detail.setHorizontalHeaderLabels(['STT', 'Mã định danh tài sản', 'Mô tả chi tiết tài sản', 'Trạng thái', 'Ghi chú'])
+    # Fill LoaiTaiSan > TaiSan
+    # Number of row in table = ten loai tai san + total tai san
+    row_count = 1 + len(tai_san_list)
+    table_DanhMuc_Detail.setRowCount(row_count)
+    # Display ten Loai Tai San
+    table_DanhMuc_Detail.setSpan(0, 0, 1, 5)  # Merge cells
+    qitem_ten_loai_tai_san = QTableWidgetItem(loai_tai_san.ten)
+    qitem_ten_loai_tai_san.setFlags(qitem_ten_loai_tai_san.flags() & ~PyQt6.QtCore.Qt.ItemFlag.ItemIsEditable)
+    table_DanhMuc_Detail.setItem(0, 0, qitem_ten_loai_tai_san)
     
-
-
-
-
-
-    """
-    # Fill NhomTaiSan > LoaiTaiSan
-    # Displaying the grouped TaiSans
-    for phong in phongs:
-        print(f"Ten Phong: {phong.ten}")
         
-        tai_sans_grouped = defaultdict(lambda: defaultdict(list))   # Dictionary of dictionaries of lists of tai_san
-        for tai_san in phong.tai_sans:
-            loai_tai_san = tai_san.loai_tai_san if tai_san.loai_tai_san else None
-            nhom_tai_san = loai_tai_san.nhom_tai_san if loai_tai_san else None
-            if loai_tai_san and nhom_tai_san:
-                tai_sans_grouped[nhom_tai_san][loai_tai_san].append(tai_san)
-        for nhom_tai_san, loai_tai_san_dict in tai_sans_grouped.items():
-            # Nhom tai san
-            print(f"Nhom tai san: {nhom_tai_san.ten}")
-
-            for loai_tai_san, tai_san_list in loai_tai_san_dict.items():
-                # Loai tai san
-                print(f"    Loai tai san: {loai_tai_san.ten}")
-
-                for tai_san in tai_san_list:
-                    # Tai san
-                    print(f"        Tai san: {tai_san.mo_ta}")
-    """
-
-
-
-
-
+    # Custom display for cols and rows of table
+    table_DanhMuc_Detail.resizeColumnsToContents()
+    table_DanhMuc_Detail.resizeRowsToContents()
+    # Put the table into layout
+    layout_for_frame_RoomInfo_DanhMuc_Detail.addWidget(table_DanhMuc_Detail)
+    return frame_RoomInfo_DanhMuc_Detail
 
 def createRoomInfo_KiemKe_Frame(parent, phong:Phong):
     pass
-
-def createRoomInfo_Info_Frame(parent, phong:Phong):
-    # Frame for RoomInfo_Info to be setted in frame_RoomInfo
-    frame_RoomInfo_Info = QFrame(parent=parent)
-    frame_RoomInfo_Info.setFrameShape(QFrame.Shape.StyledPanel)   # Optional
-    frame_RoomInfo_Info.setFrameShadow(QFrame.Shadow.Raised)  # Optional
-    # Vertical layout for the frame
-    layout_for_frame_RoomInfo_Info = QVBoxLayout(frame_RoomInfo_Info)
-    # Displaying Info
-    label_ma_phong = QLabel(parent=frame_RoomInfo_Info)
-    label_ma_phong.setText(f"Mã phòng: P.{phong.ma}")
-    layout_for_frame_RoomInfo_Info.addWidget(label_ma_phong)
-
-    label_ten_phong = QLabel(parent=frame_RoomInfo_Info)
-    label_ten_phong.setText(f"Tên phòng: {phong.ten}")
-    layout_for_frame_RoomInfo_Info.addWidget(label_ten_phong)
-
-    label_khu_vuc = QLabel(parent=frame_RoomInfo_Info)
-    label_khu_vuc.setText(f"Khu vực: {phong.khu.ten if phong.khu else ''}")
-    layout_for_frame_RoomInfo_Info.addWidget(label_khu_vuc)
-
-    label_don_vi = QLabel(parent=frame_RoomInfo_Info)
-    label_don_vi.setText(f"Đơn vị quản lý: {phong.don_vi.ten if phong.don_vi else ''}")
-    layout_for_frame_RoomInfo_Info.addWidget(label_don_vi)
-
-    label_can_bo = QLabel(parent=frame_RoomInfo_Info)
-    label_can_bo.setText(f"Cán bộ quản lý: {phong.can_bo.ten if phong.can_bo else ''}")
-    layout_for_frame_RoomInfo_Info.addWidget(label_can_bo)
-
-    label_sdt = QLabel(parent=frame_RoomInfo_Info)
-    label_sdt.setText(f"SĐT liên hệ: {phong.can_bo.sdt if phong.can_bo.sdt else '' if phong.can_bo else ''}")
-    layout_for_frame_RoomInfo_Info.addWidget(label_sdt)
-
-    label_thong_tin = QLabel(parent=frame_RoomInfo_Info)
-    label_thong_tin.setText(f"Thông tin phòng: {phong.thong_tin if phong.thong_tin else ''}")
-    layout_for_frame_RoomInfo_Info.addWidget(label_thong_tin)
-
-    # . . . add more label for phong's properties here ...
-    # Create a vertical spacer as a widget
-    spacer_widget = QWidget(parent=frame_RoomInfo_Info)
-    spacer_widget.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
-
-    layout_for_frame_RoomInfo_Info.addWidget(spacer_widget)
-    return frame_RoomInfo_Info
 
 def createKhuFrame(parent, khu:Khu, callback = None):
     # Frame for Khu
@@ -414,6 +468,11 @@ def createKhuFrame(parent, khu:Khu, callback = None):
 
     return frame_Khu
 
+def qpushbutton_clicked_disconnect(button:QPushButton):
+    try:
+        button.clicked.disconnect()
+    except Exception:
+        pass
     
 
 def clearAllWidgets(parent):

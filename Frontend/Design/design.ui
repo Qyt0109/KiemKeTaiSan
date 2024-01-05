@@ -123,7 +123,7 @@ T07.NVKH.2023.P7.03</string>
        <item>
         <widget class="QStackedWidget" name="stackedWidget">
          <property name="currentIndex">
-          <number>3</number>
+          <number>2</number>
          </property>
          <widget class="QWidget" name="page_Login">
           <layout class="QVBoxLayout" name="verticalLayout_6">
@@ -473,7 +473,7 @@ background-color: rgba(255, 255, 255, 0);</string>
                   <number>0</number>
                  </property>
                  <item alignment="Qt::AlignHCenter">
-                  <widget class="QLabel" name="label_9">
+                  <widget class="QLabel" name="label_Rooms_Tittle">
                    <property name="text">
                     <string>Danh sách phòng máy</string>
                    </property>
