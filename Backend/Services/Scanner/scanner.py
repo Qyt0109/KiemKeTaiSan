@@ -67,7 +67,8 @@ CHARMAP = {
 
 class Scanner:
     def __init__(self, vendor_id=None, product_id=None) -> None:
-        self.device = self.find_device(vendor_id=vendor_id, product_id=product_id)   
+        self.device = self.find_device(vendor_id=vendor_id, product_id=product_id)
+        self.is_first_scan = True   
 
     def find_device(self, vendor_id, product_id):
         devices = [evdev.InputDevice(path) for path in evdev.list_devices()]
@@ -86,7 +87,8 @@ class Scanner:
                 print("Start scanning from device")
 
                 # Clear existing events in the buffer
-                self.clear_device_buffer()
+                if not self.is_first_scan:
+                    self.clear_device_buffer()
 
                 shift_active = False
 
