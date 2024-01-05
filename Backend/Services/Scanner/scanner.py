@@ -118,11 +118,9 @@ class Scanner:
             callback(scanned_string=scanned_string)
         return scanned_string
 
-    def clear_device_buffer(self, timeout_seconds=1):
-        # Read and discard events in the device buffer for a limited duration
-        start_time = time.time()
+    def clear_device_buffer(self):
         for event in self.device.read_loop():
-            if time.time() - start_time > timeout_seconds:
+            if event.type == evdev.ecodes.EV_KEY:
                 break
 
 """ Example useagetest.py
