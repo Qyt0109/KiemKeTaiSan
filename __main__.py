@@ -518,7 +518,7 @@ class MyApplication(QMainWindow):
             table_DanhMuc_Detail.setItem(row, 2, qitem_mo_ta_tai_san)
             table_DanhMuc_Detail.horizontalHeader().setSectionResizeMode(2, QHeaderView.ResizeMode.Stretch)
             # trang thai kiem ke
-            qitem_trang_thai_kiem_ke_tai_san = QTableWidgetItem(tai_san.ghi_chu)
+            qitem_trang_thai_kiem_ke_tai_san = QTableWidgetItem(tai_san.mo_ta)
             qitem_trang_thai_kiem_ke_tai_san.setFlags(qitem_trang_thai_kiem_ke_tai_san.flags() & ~PyQt6.QtCore.Qt.ItemFlag.ItemIsEditable)
             table_DanhMuc_Detail.setItem(row, 3, qitem_trang_thai_kiem_ke_tai_san)
             table_DanhMuc_Detail.horizontalHeader().setSectionResizeMode(3, QHeaderView.ResizeMode.ResizeToContents)

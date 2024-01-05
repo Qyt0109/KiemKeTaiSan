@@ -266,10 +266,8 @@ class CRUD_LoaiTaiSan:
 class CRUD_TaiSan:
     @staticmethod
     @crud_handler_wrapper
-    def create(ma: str, ma_serial: str = None, mo_ta: str = None, nam_su_dung: str = None, loai_tai_san_id: int = None,
-               phong_id: int = None):
-        new_tai_san = TaiSan(ma=ma, ma_serial=ma_serial, mo_ta=mo_ta, nam_su_dung=nam_su_dung,
-                             loai_tai_san_id=loai_tai_san_id, phong_id=phong_id)
+    def create(ma: str, ma_serial: str = None, mo_ta: str = None, nam_su_dung: str = None, ghi_chu:str=None, loai_tai_san_id: int = None, phong_id: int = None):
+        new_tai_san = TaiSan(ma=ma, ma_serial=ma_serial, mo_ta=mo_ta, nam_su_dung=nam_su_dung, ghi_chu=ghi_chu, loai_tai_san_id=loai_tai_san_id, phong_id=phong_id)
         session.add(new_tai_san)
         return CRUD_Status.CREATED
 
@@ -283,10 +281,9 @@ class CRUD_TaiSan:
 
     @staticmethod
     @crud_handler_wrapper
-    def update(tai_san_id: int, new_ma: str = None, new_ma_serial: str = None, new_mo_ta: str = None,
-               new_nam_su_dung: str = None, new_loai_tai_san_id: int = None, new_phong_id: int = None):
+    def update(tai_san_id: int, new_ma: str = None, new_ma_serial: str = None, new_mo_ta: str = None, new_nam_su_dung: str = None, new_ghi_chu:str=None, new_loai_tai_san_id: int = None, new_phong_id: int = None):
         # Check if any changes are provided
-        if not any([new_ma, new_ma_serial, new_mo_ta, new_nam_su_dung, new_loai_tai_san_id, new_phong_id]):
+        if not any([new_ma, new_ma_serial, new_mo_ta, new_nam_su_dung, new_ghi_chu, new_loai_tai_san_id, new_phong_id]):
             return CRUD_Status.NO_CHANGES
 
         tai_san = CRUD_TaiSan.read(tai_san_id=tai_san_id)
@@ -302,6 +299,8 @@ class CRUD_TaiSan:
             tai_san.mo_ta = new_mo_ta
         if new_nam_su_dung:
             tai_san.nam_su_dung = new_nam_su_dung
+        if new_ghi_chu:
+            tai_san.ghi_chu = new_ghi_chu
         if new_loai_tai_san_id:
             tai_san.loai_tai_san_id = new_loai_tai_san_id
         if new_phong_id:
