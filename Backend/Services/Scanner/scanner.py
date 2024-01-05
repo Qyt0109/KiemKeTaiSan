@@ -1,8 +1,8 @@
 # git clone https://github.com/vpatron/barcode_scanner_python.git
 
+import evdev
 from enum import Enum
 import time
-import evdev
 import logging
 
 class ScannerStatus(Enum):
@@ -88,15 +88,15 @@ class Scanner:
                 start_time = time.time()
 
                 for event in self.device.read_loop():
-                    if event.code == evdev.ecodes.KEY_ENTER and event.value == VALUE_DOWN:
-                        print(scanned_string)
-                        return scanned_string
+                    if event.type == evdev.ecodes.EV_KEY:
+                        if event.code == evdev.ecodes.KEY_ENTER and event.value == VALUE_DOWN:
+                            break
 
-                    elif event.code in [evdev.ecodes.KEY_LEFTSHIFT, evdev.ecodes.KEY_RIGHTSHIFT]:
-                        shift_active = event.value == VALUE_DOWN
-                    elif event.value == VALUE_DOWN:
-                        ch = CHARMAP.get(event.code, ERROR_CHARACTER)[1 if shift_active else 0]
-                        scanned_string += ch
+                        elif event.code in [evdev.ecodes.KEY_LEFTSHIFT, evdev.ecodes.KEY_RIGHTSHIFT]:
+                            shift_active = event.value == VALUE_DOWN
+                        elif event.value == VALUE_DOWN:
+                            ch = CHARMAP.get(event.code, ERROR_CHARACTER)[1 if shift_active else 0]
+                            scanned_string += ch
 
                     if time.time() - start_time > timeout_seconds:
                         break  # Timeout reached
