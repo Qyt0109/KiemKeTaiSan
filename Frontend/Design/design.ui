@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>500</width>
-    <height>300</height>
+    <width>600</width>
+    <height>400</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -123,7 +123,7 @@ T07.NVKH.2023.P7.03</string>
        <item>
         <widget class="QStackedWidget" name="stackedWidget">
          <property name="currentIndex">
-          <number>2</number>
+          <number>1</number>
          </property>
          <widget class="QWidget" name="page_Login">
           <layout class="QVBoxLayout" name="verticalLayout_6">
@@ -381,21 +381,15 @@ background-color: rgba(255, 255, 255, 0);</string>
                   </widget>
                  </item>
                  <item>
-                  <widget class="QLabel" name="label_CreatedQRImage">
+                  <widget class="QPushButton" name="pushButton_CreatedQRImage_Save">
                    <property name="sizePolicy">
-                    <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+                    <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
                      <horstretch>0</horstretch>
                      <verstretch>0</verstretch>
                     </sizepolicy>
                    </property>
                    <property name="text">
                     <string/>
-                   </property>
-                   <property name="scaledContents">
-                    <bool>true</bool>
-                   </property>
-                   <property name="alignment">
-                    <set>Qt::AlignCenter</set>
                    </property>
                   </widget>
                  </item>
@@ -747,8 +741,8 @@ background-color: rgba(255, 255, 255, 0);</string>
                   <rect>
                    <x>0</x>
                    <y>0</y>
-                   <width>587</width>
-                   <height>255</height>
+                   <width>570</width>
+                   <height>155</height>
                   </rect>
                  </property>
                  <layout class="QVBoxLayout" name="verticalLayout_12">
@@ -941,8 +935,8 @@ background-color: rgba(255, 255, 255, 0);</string>
                   <rect>
                    <x>0</x>
                    <y>0</y>
-                   <width>587</width>
-                   <height>314</height>
+                   <width>570</width>
+                   <height>214</height>
                   </rect>
                  </property>
                  <layout class="QVBoxLayout" name="verticalLayout_15">
@@ -1157,8 +1151,8 @@ background-color: rgba(255, 255, 255, 0);</string>
                   <rect>
                    <x>0</x>
                    <y>0</y>
-                   <width>563</width>
-                   <height>326</height>
+                   <width>546</width>
+                   <height>226</height>
                   </rect>
                  </property>
                  <layout class="QVBoxLayout" name="verticalLayout_22">
