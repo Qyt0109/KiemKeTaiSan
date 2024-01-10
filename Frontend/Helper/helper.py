@@ -1,21 +1,3 @@
-from Backend.Services.Scanner.scanner import *
-# from Backend.Services.Scanner.fake_scanner import *
-
-
-class Thread_Scanner(QThread):
-    is_done = pyqtSignal(str)   # Signal with a string argument for the result
-
-    def __init__(self, vendor_id=None, product_id=None) -> None:
-        super().__init__()
-        self.scanner = Scanner(vendor_id=vendor_id, product_id=product_id)
-
-    def run(self):
-        status, result = self.scanner.read_barcode()
-        if status == ScannerStatus.READ_OK:
-            scanned_string = result
-            self.is_done.emit(scanned_string)
-
-
 from collections import defaultdict
 import signal
 import typing
@@ -33,6 +15,22 @@ from PyQt6.QtGui import (
 )
 
 from Backend.Database.db_sessions import *
+from Backend.Services.Scanner.scanner import *
+# from Backend.Services.Scanner.fake_scanner import *
+
+
+class Thread_Scanner(QThread):
+    is_done = pyqtSignal(str)   # Signal with a string argument for the result
+
+    def __init__(self, vendor_id=None, product_id=None) -> None:
+        super().__init__()
+        self.scanner = Scanner(vendor_id=vendor_id, product_id=product_id)
+
+    def run(self):
+        status, result = self.scanner.read_barcode()
+        if status == ScannerStatus.READ_OK:
+            scanned_string = result
+            self.is_done.emit(scanned_string)
 
 
 def clearAllWidgets(parent_widget: QWidget):
