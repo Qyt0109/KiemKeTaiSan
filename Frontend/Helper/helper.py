@@ -1,4 +1,21 @@
-from Backend.Services.Scanner.test_scanner import *
+from Backend.Services.Scanner.scanner import *
+# from Backend.Services.Scanner.fake_scanner import *
+
+
+class Thread_Scanner(QThread):
+    is_done = pyqtSignal(str)   # Signal with a string argument for the result
+
+    def __init__(self, vendor_id=None, product_id=None) -> None:
+        super().__init__()
+        self.scanner = Scanner(vendor_id=vendor_id, product_id=product_id)
+
+    def run(self):
+        status, result = self.scanner.read_barcode()
+        if status == ScannerStatus.READ_OK:
+            scanned_string = result
+            self.is_done.emit(scanned_string)
+
+
 from collections import defaultdict
 import signal
 import typing
@@ -278,29 +295,6 @@ class Table_DanhMuc_Detail(QTableWidget):
         # Custom display for cols and rows of table
         self.resizeColumnsToContents()
         self.resizeRowsToContents()
-
-
-# from Backend.Services.Scanner.fake_scanner import *
-
-
-class Thread_Scanner(QThread):
-    is_done = pyqtSignal(str)   # Signal with a string argument for the result
-
-    def __init__(self, vendor_id=None, product_id=None) -> None:
-        super().__init__()
-        self.scanner = Scanner(vendor_id=vendor_id, product_id=product_id)
-        self.scanner.grab()
-
-    def run(self):
-        status, result = self.scanner.read_barcode()
-        if status == ScannerStatus.READ_OK:
-            scanned_string = result
-            self.is_done.emit(scanned_string)
-
-    def __del__(self):
-        self.scanner.ungrab()
-        self.terminate()
-        self.wait()
 
 
 class Test_Thread_Scanner(QThread):
