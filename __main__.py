@@ -47,8 +47,8 @@ if TEST_DEV:
     def resetAllTaiSan():
         status, tai_sans = CRUD_TaiSan.read_all()
         for tai_san in tai_sans:
-            CRUD_TaiSan.update(tai_san_id=tai_san.id,
-                               new_ghi_chu=BanGhiKiemKeState.NOT_AVAILABLE.value)
+            CRUD_TaiSan.update(id=tai_san.id,
+                               ghi_chu=BanGhiKiemKeState.NOT_AVAILABLE.value)
 
     # resetAllTaiSan()
 
@@ -413,6 +413,8 @@ class MyApplication(QMainWindow):
 
     # Test
     def toPageTest(self):
+        resetAllTaiSan()
+        return
         dialog = Dialog_QRScanner(title='Test title',
                                   msg='Hello msg')
         result = dialog.exec()
