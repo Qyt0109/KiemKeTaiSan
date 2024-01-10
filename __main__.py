@@ -380,8 +380,9 @@ class MyApplication(QMainWindow):
             ma_tai_san = f"{phong.don_vi.ma}.{phong.ma}.{loai_tai_san.ma}.{tai_san.ma}"
             print(f"{ma_tai_san =}")
             if ma_tai_san == scanned_string:
-                CRUD_TaiSan.update(id=tai_san.id, new_ghi_chu=BanGhiKiemKeState.IS_AVAILABLE.value)
+                CRUD_TaiSan.update(id=tai_san.id, ghi_chu=BanGhiKiemKeState.IS_AVAILABLE.value)
                 self.renderViewRoomInfo_KiemKe_Detail(phong=phong, loai_tai_san=loai_tai_san, tai_san_list=tai_san_list)
+                return
         
 
     def renderViewRoomInfo_DanhMuc_Detail(self, phong: Phong, loai_tai_san: LoaiTaiSan, tai_san_list: List[TaiSan]):
