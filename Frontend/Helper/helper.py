@@ -190,7 +190,7 @@ class Table_DanhMuc(QTableWidget):
         row = 0
         for nhom_tai_san, loai_tai_san_dict in tai_sans_grouped.items():
             # Nhom tai san
-            print(f"Nhom tai san: {nhom_tai_san.ten}")
+            # print(f"Nhom tai san: {nhom_tai_san.ten}")
             # Display ten Nhom Tai San
             self.setSpan(row, 0, 1, column_count)
             qitem_ten_danh_muc = QTableWidgetItem(nhom_tai_san.ten)
@@ -201,7 +201,7 @@ class Table_DanhMuc(QTableWidget):
             stt = 1
             for loai_tai_san, tai_san_list in loai_tai_san_dict.items():
                 # Loai tai san
-                print(f"    Loai tai san: {loai_tai_san.ten}")
+                # print(f"    Loai tai san: {loai_tai_san.ten}")
                 items = [
                     f"{stt}",
                     f"{phong.don_vi.ma}.{phong.ma}.{loai_tai_san.ma}",
@@ -383,7 +383,7 @@ class Table_DanhMuc_KiemKe(QTableWidget):
         row = 0
         for nhom_tai_san, loai_tai_san_dict in tai_sans_grouped.items():
             # Nhom tai san
-            print(f"Nhom tai san: {nhom_tai_san.ten}")
+            # print(f"Nhom tai san: {nhom_tai_san.ten}")
             # Display ten Nhom Tai San
             self.setSpan(row, 0, 1, column_count)
             qitem_ten_danh_muc = QTableWidgetItem(nhom_tai_san.ten)
@@ -394,7 +394,7 @@ class Table_DanhMuc_KiemKe(QTableWidget):
             stt = 1
             for loai_tai_san, tai_san_list in loai_tai_san_dict.items():
                 # Loai tai san
-                print(f"    Loai tai san: {loai_tai_san.ten}")
+                # print(f"    Loai tai san: {loai_tai_san.ten}")
                 items = [
                     f"{stt}",
                     f"{phong.don_vi.ma}.{phong.ma}.{loai_tai_san.ma}",

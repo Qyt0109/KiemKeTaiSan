@@ -362,16 +362,15 @@ class MyApplication(QMainWindow):
                                                                   loai_tai_san=loai_tai_san,
                                                                   tai_san_list=tai_san_list)
         layout.addWidget(table_DanhMuc_KiemKe_Detail)
-        self.thread_scanner.start()
         # Process pending events to update the UI
         QCoreApplication.processEvents()
         self.scanning_phong = phong
         self.scanning_loai_tai_san = loai_tai_san
         self.scanning_tai_san_list = tai_san_list
-    
-
+        self.thread_scanner.start()
     
     def scanned_update(self, scanned_string:str):
+        print(scanned_string)
         phong = self.scanning_phong
         loai_tai_san = self.scanning_loai_tai_san
         tai_san_list = self.scanning_tai_san_list

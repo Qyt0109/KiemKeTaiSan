@@ -15,7 +15,7 @@ db_ssl_ca_path = '/etc/ssl/cert.pem'
 db_password = connection_password
 
 # Create an SQLite engine
-ECHO = True
+ECHO = False
 TEST_DB = False
 if TEST_DB:
     connection_string_url = 'sqlite:///Backend/Database/db.sqlite'
