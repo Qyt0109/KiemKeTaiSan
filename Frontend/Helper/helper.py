@@ -27,10 +27,11 @@ class Thread_Scanner(QThread):
         self.scanner = Scanner(vendor_id=vendor_id, product_id=product_id)
 
     def run(self):
-        status, result = self.scanner.read_barcode()
-        if status == ScannerStatus.READ_OK:
-            scanned_string = result
-            self.is_done.emit(scanned_string)
+        while True:
+            status, result = self.scanner.read_barcode()
+            if status == ScannerStatus.READ_OK:
+                scanned_string = result
+                self.is_done.emit(scanned_string)
 
 
 def clearAllWidgets(parent_widget: QWidget):
