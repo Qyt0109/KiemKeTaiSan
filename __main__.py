@@ -136,6 +136,7 @@ class MyApplication(QMainWindow):
         self.thread_scanner = Thread_Scanner(vendor_id=0x1a86,
                                              product_id=0xe026)
         self.thread_scanner.is_done.connect(self.scanned_update)
+        self.thread_scanner.start()
 
     # Icons
     def init_icons(self):
@@ -367,7 +368,6 @@ class MyApplication(QMainWindow):
         self.scanning_phong = phong
         self.scanning_loai_tai_san = loai_tai_san
         self.scanning_tai_san_list = tai_san_list
-        self.thread_scanner.start()
     
     def scanned_update(self, scanned_string:str):
         print(scanned_string)
@@ -378,8 +378,9 @@ class MyApplication(QMainWindow):
             return
         for tai_san in tai_san_list:
             ma_tai_san = f"{phong.don_vi.ma}.{phong.ma}.{loai_tai_san.ma}.{tai_san.ma}"
+            print(f"{ma_tai_san =}")
             if ma_tai_san == scanned_string:
-                CRUD_TaiSan.update(tai_san_id=tai_san.id, new_ghi_chu=BanGhiKiemKeState.IS_AVAILABLE.value)
+                CRUD_TaiSan.update(id=tai_san.id, new_ghi_chu=BanGhiKiemKeState.IS_AVAILABLE.value)
                 self.renderViewRoomInfo_KiemKe_Detail(phong=phong, loai_tai_san=loai_tai_san, tai_san_list=tai_san_list)
         
 
