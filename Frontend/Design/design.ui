@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>600</width>
-    <height>400</height>
+    <width>599</width>
+    <height>452</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -123,10 +123,25 @@ T07.NVKH.2023.P7.03</string>
        <item>
         <widget class="QStackedWidget" name="stackedWidget">
          <property name="currentIndex">
-          <number>1</number>
+          <number>6</number>
          </property>
          <widget class="QWidget" name="page_Login">
           <layout class="QVBoxLayout" name="verticalLayout_6">
+           <property name="spacing">
+            <number>0</number>
+           </property>
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="rightMargin">
+            <number>0</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
            <item alignment="Qt::AlignVCenter">
             <widget class="QFrame" name="frame_4">
              <property name="sizePolicy">
@@ -290,6 +305,21 @@ background-color: rgba(255, 255, 255, 0);</string>
          </widget>
          <widget class="QWidget" name="page_CreateQR">
           <layout class="QVBoxLayout" name="verticalLayout_20">
+           <property name="spacing">
+            <number>0</number>
+           </property>
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="rightMargin">
+            <number>0</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
            <item>
             <widget class="QFrame" name="frame_22">
              <property name="frameShape">
@@ -351,6 +381,21 @@ background-color: rgba(255, 255, 255, 0);</string>
                  <enum>QFrame::Raised</enum>
                 </property>
                 <layout class="QVBoxLayout" name="verticalLayout_29">
+                 <property name="spacing">
+                  <number>0</number>
+                 </property>
+                 <property name="leftMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="topMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="rightMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="bottomMargin">
+                  <number>0</number>
+                 </property>
                  <item alignment="Qt::AlignTop">
                   <widget class="QFrame" name="frame_25">
                    <property name="frameShape">
@@ -403,6 +448,21 @@ background-color: rgba(255, 255, 255, 0);</string>
          </widget>
          <widget class="QWidget" name="page_MainMenu">
           <layout class="QVBoxLayout" name="verticalLayout_7">
+           <property name="spacing">
+            <number>0</number>
+           </property>
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="rightMargin">
+            <number>0</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
            <item alignment="Qt::AlignVCenter">
             <widget class="QFrame" name="frame_7">
              <property name="frameShape">
@@ -569,6 +629,21 @@ background-color: rgba(255, 255, 255, 0);</string>
          </widget>
          <widget class="QWidget" name="page_Rooms">
           <layout class="QVBoxLayout" name="verticalLayout_9">
+           <property name="spacing">
+            <number>0</number>
+           </property>
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="rightMargin">
+            <number>0</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
            <item>
             <widget class="QFrame" name="frame_11">
              <property name="frameShape">
@@ -741,11 +816,26 @@ background-color: rgba(255, 255, 255, 0);</string>
                   <rect>
                    <x>0</x>
                    <y>0</y>
-                   <width>570</width>
-                   <height>155</height>
+                   <width>594</width>
+                   <height>179</height>
                   </rect>
                  </property>
                  <layout class="QVBoxLayout" name="verticalLayout_12">
+                  <property name="spacing">
+                   <number>0</number>
+                  </property>
+                  <property name="leftMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="topMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="rightMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="bottomMargin">
+                   <number>0</number>
+                  </property>
                   <item>
                    <widget class="QFrame" name="frame_KhuHolder">
                     <property name="frameShape">
@@ -816,6 +906,21 @@ background-color: rgba(255, 255, 255, 0);</string>
          </widget>
          <widget class="QWidget" name="page_RoomInfo">
           <layout class="QVBoxLayout" name="verticalLayout_25">
+           <property name="spacing">
+            <number>0</number>
+           </property>
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="rightMargin">
+            <number>0</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
            <item>
             <widget class="QFrame" name="frame_13">
              <property name="frameShape">
@@ -935,8 +1040,8 @@ background-color: rgba(255, 255, 255, 0);</string>
                   <rect>
                    <x>0</x>
                    <y>0</y>
-                   <width>570</width>
-                   <height>214</height>
+                   <width>593</width>
+                   <height>302</height>
                   </rect>
                  </property>
                  <layout class="QVBoxLayout" name="verticalLayout_15">
@@ -986,6 +1091,21 @@ background-color: rgba(255, 255, 255, 0);</string>
                  <enum>QFrame::Raised</enum>
                 </property>
                 <layout class="QHBoxLayout" name="horizontalLayout_9">
+                 <property name="spacing">
+                  <number>0</number>
+                 </property>
+                 <property name="leftMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="topMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="rightMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="bottomMargin">
+                  <number>0</number>
+                 </property>
                  <item alignment="Qt::AlignLeft">
                   <widget class="QPushButton" name="pushButton_RoomInfo_Home">
                    <property name="text">
@@ -1010,6 +1130,21 @@ background-color: rgba(255, 255, 255, 0);</string>
          </widget>
          <widget class="QWidget" name="page_QR">
           <layout class="QVBoxLayout" name="verticalLayout_16">
+           <property name="spacing">
+            <number>0</number>
+           </property>
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="rightMargin">
+            <number>0</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
            <item>
             <widget class="QFrame" name="frame_19">
              <property name="frameShape">
@@ -1099,6 +1234,21 @@ background-color: rgba(255, 255, 255, 0);</string>
          </widget>
          <widget class="QWidget" name="page_Test">
           <layout class="QVBoxLayout" name="verticalLayout_2">
+           <property name="spacing">
+            <number>0</number>
+           </property>
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="rightMargin">
+            <number>0</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
            <item>
             <widget class="QFrame" name="frame_Test">
              <property name="frameShape">
@@ -1151,8 +1301,8 @@ background-color: rgba(255, 255, 255, 0);</string>
                   <rect>
                    <x>0</x>
                    <y>0</y>
-                   <width>546</width>
-                   <height>226</height>
+                   <width>569</width>
+                   <height>302</height>
                   </rect>
                  </property>
                  <layout class="QVBoxLayout" name="verticalLayout_22">

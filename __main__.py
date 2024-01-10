@@ -1,3 +1,7 @@
+from Backend.Database.db_sessions import *
+from Backend.Services.Scanner.fake_scanner import *
+from Frontend.Helper.helper import *
+from Frontend.Design.design_ui import Ui_MainWindow
 from collections import defaultdict
 import signal
 import typing
@@ -28,16 +32,25 @@ from PyQt6.QtGui import (
 )
 
 """ Modules """
-# UI
-from Frontend.Design.design_ui import Ui_MainWindow
-from Frontend.Helper.helper import *
+""" Frontend """
+# The design
+# Dynamic render view and other helper for UI
+""" QR Scanner """
 # Scanner
-from Backend.Services.Scanner.scanner import *
-# from Backend.Services.Scanner.fake_scanner import * # fake scanner for developing UI interface
-# Models
-# from Backend.Models.models import *
+# from Backend.Services.Scanner.scanner import *
+# Fake scanner for developing UI interface
+""" Backend """
 # Database
-from Backend.Database.db_sessions import *
+
+TEST_DEV = True
+if TEST_DEV:
+    def resetAllTaiSan():
+        status, tai_sans = CRUD_TaiSan.read_all()
+        for tai_san in tai_sans:
+            CRUD_TaiSan.update(tai_san_id=tai_san.id,
+                               new_ghi_chu=BanGhiKiemKeState.NOT_AVAILABLE.value)
+
+    # resetAllTaiSan()
 
 """ Paths """
 icon_search_path = "Frontend/Resources/Bootstrap/search.png"
@@ -47,15 +60,17 @@ icon_back_path = "Frontend/Resources/Bootstrap/arrow-left.png"
 icon_x_path = "Frontend/Resources/Bootstrap/x-lg.png"
 icon_qr_code_path = "Frontend/Resources/Bootstrap/qr-code.png"
 
+
 class PageRoomsInfoMode(Enum):
-    DANH_SACH = "Danh sach"
-    KIEM_KE = "Kiem ke"
+    DANH_SACH = "Danh sách"
+    KIEM_KE = "Kiểm kê"
+
 
 class MyApplication(QMainWindow):
     """ Main App class """
+
     def __init__(self):
         super().__init__()
-        resetAllTaiSan()
         # Set up the user interface from Designer
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
@@ -66,32 +81,32 @@ class MyApplication(QMainWindow):
 
         # Connect signals and slots
         self.ui.pushButton_Login.clicked.connect(self.login)
-        """
-        button_increase.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(
-            (self.stackedWidget.currentIndex() + 1) % self.stackedWidget.count()))
-
-        button_decrease.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(
-            (self.stackedWidget.currentIndex() - 1) % self.stackedWidget.count()))
-        """
         self.ui.pushButton_ToLeft.clicked.connect(lambda: self.ui.stackedWidget.setCurrentIndex(
-            (self.ui.stackedWidget.currentIndex() - 1) % self.ui.stackedWidget.count()
+            (self.ui.stackedWidget.currentIndex() -
+             1) % self.ui.stackedWidget.count()
         ))
         self.ui.pushButton_ToRight.clicked.connect(lambda: self.ui.stackedWidget.setCurrentIndex(
-            (self.ui.stackedWidget.currentIndex() + 1) % self.ui.stackedWidget.count()
+            (self.ui.stackedWidget.currentIndex() +
+             1) % self.ui.stackedWidget.count()
         ))
         """ Page Rooms """
         self.ui.pushButton_Rooms.clicked.connect(self.toPageRooms)
-        self.ui.pushButton_RoomSearch.clicked.connect(self.onClicked_pushButton_RoomSearch)
-        self.ui.pushButton_RoomSearch_ClearFilter.clicked.connect(self.onClicked_pushButton_RoomSearch_ClearFilter)
-        self.ui.pushButton_RoomSearchOptions.clicked.connect(self.onClicked_pushButton_RoomSearchOptions)
+        self.ui.pushButton_RoomSearch.clicked.connect(
+            self.onClicked_pushButton_RoomSearch)
+        self.ui.pushButton_RoomSearch_ClearFilter.clicked.connect(
+            self.onClicked_pushButton_RoomSearch_ClearFilter)
+        self.ui.pushButton_RoomSearchOptions.clicked.connect(
+            self.onClicked_pushButton_RoomSearchOptions)
         self.ui.pushButton_Home.clicked.connect(self.toPageMainMenu)
         self.ui.pushButton_Back.clicked.connect(self.toPageMainMenu)
-        self.ui.pushButton_RoomSearchOptions.setStyleSheet("background-color: rgba(255, 255, 255, 128);")
+        self.ui.pushButton_RoomSearchOptions.setStyleSheet(
+            "background-color: rgba(255, 255, 255, 128);")
         self.ui.frame_RoomSearchOptions.setVisible(False)
         """ Page Rooms """
         """ Pagge Room Info """
         self.ui.pushButton_RoomInfo_Home.clicked.connect(self.toPageMainMenu)
-        self.ui.pushButton_RoomInfo_Back.clicked.connect(self.backToPageRoomsOrChecks)
+        self.ui.pushButton_RoomInfo_Back.clicked.connect(
+            self.backToPageRoomsOrChecks)
         """ Pagge Room Info """
         """ Page QR """
         self.ui.pushButton_KiemTraThietBi.clicked.connect(self.toPageQR)
@@ -115,20 +130,29 @@ class MyApplication(QMainWindow):
         self.toPageMainMenu()
 
         # Scanner
-        self.scanner = Scanner(vendor_id=0x1a86, product_id=0xe026)
+        self.scanning_phong = None
+        self.scanning_loai_tai_san = None
+        self.scanning_tai_san_list = None
+        self.thread_scanner = Thread_Scanner(vendor_id=0x1a86,
+                                             product_id=0xe026)
+        self.thread_scanner.connect(self.scanned_update)
 
     # Icons
     def init_icons(self):
         """ Page Rooms """
         self.ui.pushButton_RoomSearch.setIcon(QIcon(QPixmap(icon_search_path)))
-        self.ui.pushButton_RoomSearch_ClearFilter.setIcon(QIcon(QPixmap(icon_x_path)))
-        self.ui.pushButton_RoomSearchOptions.setIcon(QIcon(QPixmap(icon_options_path)))
+        self.ui.pushButton_RoomSearch_ClearFilter.setIcon(
+            QIcon(QPixmap(icon_x_path)))
+        self.ui.pushButton_RoomSearchOptions.setIcon(
+            QIcon(QPixmap(icon_options_path)))
         self.ui.pushButton_Home.setIcon(QIcon(QPixmap(icon_home_path)))
         self.ui.pushButton_Back.setIcon(QIcon(QPixmap(icon_back_path)))
         """ Page Rooms """
         """ Page RoomInfo """
-        self.ui.pushButton_RoomInfo_Home.setIcon(QIcon(QPixmap(icon_home_path)))
-        self.ui.pushButton_RoomInfo_Back.setIcon(QIcon(QPixmap(icon_back_path)))
+        self.ui.pushButton_RoomInfo_Home.setIcon(
+            QIcon(QPixmap(icon_home_path)))
+        self.ui.pushButton_RoomInfo_Back.setIcon(
+            QIcon(QPixmap(icon_back_path)))
         """ Page RoomInfo """
 
     # Define functions
@@ -145,36 +169,45 @@ class MyApplication(QMainWindow):
 
     def toPageMainMenu(self):
         self.ui.stackedWidget.setCurrentWidget(self.ui.page_MainMenu)
-    
+
     def renderRooms(self):
-        """ render rooms for displaying in Page Rooms or Page Check """
-        # Setup combobox to select don vi
-        self.don_vis = CRUD_DonVi.read_all()
+        qpushbutton_clicked_disconnect(self.ui.pushButton_RoomInfo_Back)
+        self.ui.pushButton_RoomInfo_Back.clicked.connect(
+            self.backToPageRoomsOrChecks)
+        status, result = CRUD_DonVi.read_all()
+        don_vis = []
+        if status == CRUD_Status.FOUND:
+            don_vis = result
+        else:
+            print(status, result)
         self.ui.comboBox_RoomSearchOptions_DonVi.clear()
         self.ui.comboBox_RoomSearchOptions_DonVi.addItem("")  # INDEX 0 OPTION
-        for don_vi in self.don_vis:
+        for don_vi in don_vis:
             self.ui.comboBox_RoomSearchOptions_DonVi.addItem(don_vi.ten)
-        # Setup frame for display all Khus
-        self.khus = CRUD_Khu.read_all()
         parent = self.ui.frame_KhuHolder
-        layout = self.ui.frame_KhuHolder.layout()
+        layout = parent.layout()
         clearAllWidgets(parent)
-
-        for khu in self.khus:
-            print(khu.ten)
-            if khu.phongs:
-                for phong in khu.phongs:
-                    print(phong.ten)
-            frame_Khu = createKhuFrame(parent=parent, khu=khu, callback=self.toPageRoomInfo)
+        status, result = CRUD_Khu.read_all()
+        khus = []
+        if status == CRUD_Status.FOUND:
+            khus = result
+        else:
+            print(status, result)
+        for khu in khus:
+            frame_Khu = Frame_Khu(parent=parent,
+                                  khu=khu,
+                                  callback_pushButton_Phong=self.toPageRoomInfo)
             layout.addWidget(frame_Khu)
         self.ui.stackedWidget.setCurrentWidget(self.ui.page_Rooms)
 
     """ Page Rooms """
+
     def backToPageRoomsOrChecks(self):
         if self.page_rooms_info_mode == PageRoomsInfoMode.DANH_SACH:
             self.toPageRooms()
         elif self.page_rooms_info_mode == PageRoomsInfoMode.KIEM_KE:
             self.toPageCheck()
+
     def toPageRooms(self):
         self.page_rooms_info_mode = PageRoomsInfoMode.DANH_SACH
         self.renderRooms()
@@ -197,24 +230,28 @@ class MyApplication(QMainWindow):
         for phong in phongs:
             print(phong.ten)
         """
-    
+
     def onClicked_pushButton_RoomSearchOptions(self):
         is_visible = self.ui.frame_RoomSearchOptions.isVisible()
         self.ui.frame_RoomSearchOptions.setVisible(not is_visible)
 
         # Set color based on visibility
         if is_visible:
-            self.ui.pushButton_RoomSearchOptions.setStyleSheet("background-color: rgba(255, 255, 255, 128);")
+            self.ui.pushButton_RoomSearchOptions.setStyleSheet(
+                "background-color: rgba(255, 255, 255, 128);")
         else:
-            self.ui.pushButton_RoomSearchOptions.setStyleSheet("background-color: rgba(102, 153, 255, 128);")
+            self.ui.pushButton_RoomSearchOptions.setStyleSheet(
+                "background-color: rgba(102, 153, 255, 128);")
     """ Page Rooms """
 
     """ Page CreateQR """
+
     def toPageCreateQR(self):
         self.ui.stackedWidget.setCurrentWidget(self.ui.page_CreateQR)
     """ Page CreateQR """
 
     """ Page QR """
+
     def toPageQR(self, callback=None):
         self.ui.stackedWidget.setCurrentWidget(self.ui.page_QR)
         self.ui.label_QRCode.setText("Đang chờ đọc QR...")
@@ -222,7 +259,7 @@ class MyApplication(QMainWindow):
         # Process pending events to update the UI
         QCoreApplication.processEvents()
         self.scanner.read_barcode(callback=self.displayScannedString)
-    
+
     def displayScannedString(self, scanned_string=None):
         if scanned_string == ScannerStatus.NO_DEVICE:
             msg = "Không kết nối được tới thiết bị đọc QR"
@@ -235,379 +272,138 @@ class MyApplication(QMainWindow):
         # Process pending events to update the UI
         QCoreApplication.processEvents()
         
+        
+
+
 
     """ Page QR """
 
     """ Page Room info """
-    def toPageRoomInfo(self, phong=None):
+
+    def toPageRoomInfo(self, phong):
         parent = self.ui.frame_RoomInfo
-        clearAllWidgets(parent=parent)
+        clearAllWidgets(parent_widget=parent)
         self.ui.stackedWidget.setCurrentWidget(self.ui.page_RoomInfo)
-        if phong:
-            self.renderViewRoomInfo_Info(phong)
-            qpushbutton_clicked_disconnect(self.ui.pushButton_RoomInfo_Info)
-            self.ui.pushButton_RoomInfo_Info.clicked.connect(lambda: self.renderViewRoomInfo_Info(phong=phong))
-            
-            if self.page_rooms_info_mode == PageRoomsInfoMode.DANH_SACH:
-                self.ui.pushButton_RoomInfo_DanhMuc.setHidden(False)
-                self.ui.pushButton_RoomInfo_KiemKe.setHidden(True)
-                qpushbutton_clicked_disconnect(self.ui.pushButton_RoomInfo_DanhMuc)
-                self.ui.pushButton_RoomInfo_DanhMuc.clicked.connect(lambda: self.renderViewRoomInfo_DanhMuc(phong=phong))
-            elif self.page_rooms_info_mode == PageRoomsInfoMode.KIEM_KE:
-                self.ui.pushButton_RoomInfo_DanhMuc.setHidden(True)
-                self.ui.pushButton_RoomInfo_KiemKe.setHidden(False)
-                qpushbutton_clicked_disconnect(self.ui.pushButton_RoomInfo_KiemKe)
-                self.ui.pushButton_RoomInfo_KiemKe.clicked.connect(lambda: self.renderViewRoomInfo_KiemKe(phong=phong))
-            else:
-                pass
-    
+        self.renderViewRoomInfo_Info(phong)
+        qpushbutton_clicked_disconnect(self.ui.pushButton_RoomInfo_Info)
+        self.ui.pushButton_RoomInfo_Info.clicked.connect(
+            lambda: self.renderViewRoomInfo_Info(phong=phong))
+
+        if self.page_rooms_info_mode == PageRoomsInfoMode.DANH_SACH:
+            self.ui.pushButton_RoomInfo_DanhMuc.setHidden(False)
+            self.ui.pushButton_RoomInfo_KiemKe.setHidden(True)
+            qpushbutton_clicked_disconnect(
+                self.ui.pushButton_RoomInfo_DanhMuc)
+            self.ui.pushButton_RoomInfo_DanhMuc.clicked.connect(
+                lambda: self.renderViewRoomInfo_DanhMuc(phong=phong))
+        elif self.page_rooms_info_mode == PageRoomsInfoMode.KIEM_KE:
+            self.ui.pushButton_RoomInfo_DanhMuc.setHidden(True)
+            self.ui.pushButton_RoomInfo_KiemKe.setHidden(False)
+            qpushbutton_clicked_disconnect(
+                self.ui.pushButton_RoomInfo_KiemKe)
+            self.ui.pushButton_RoomInfo_KiemKe.clicked.connect(
+                lambda: self.renderViewRoomInfo_KiemKe(phong=phong))
+        else:
+            pass
+
     def renderViewRoomInfo_Info(self, phong):
-        self.ui.label_RoomInfo_TenPhong.setText(f"Phòng {phong.ma} - {phong.khu.ten}\n{phong.ten}")
+        qpushbutton_clicked_disconnect(self.ui.pushButton_RoomInfo_Back)
+        self.ui.pushButton_RoomInfo_Back.clicked.connect(
+            self.backToPageRoomsOrChecks)
+        self.ui.label_RoomInfo_TenPhong.setText(
+            f"Phòng {phong.ma} - {phong.khu.ten}\n{phong.ten}")
         # Setup frame for display RoomInfo_Info
         parent = self.ui.frame_RoomInfo
-        layout = self.ui.frame_RoomInfo.layout()
-        clearAllWidgets(parent=parent)
+        parent_layout = parent.layout()
+        clearAllWidgets(parent_widget=parent)
         # Frame for RoomInfo_Info to be setted in frame_RoomInfo
-        frame_RoomInfo_Info = QFrame(parent=parent)
-        frame_RoomInfo_Info.setFrameShape(QFrame.Shape.StyledPanel)   # Optional
-        frame_RoomInfo_Info.setFrameShadow(QFrame.Shadow.Raised)  # Optional
-        # Vertical layout for the frame
-        layout_for_frame_RoomInfo_Info = QVBoxLayout(frame_RoomInfo_Info)
-        # Displaying Info
-        label_ma_phong = QLabel(parent=frame_RoomInfo_Info)
-        label_ma_phong.setText(f"Mã phòng: P.{phong.ma}")
-        layout_for_frame_RoomInfo_Info.addWidget(label_ma_phong)
-
-        label_ten_phong = QLabel(parent=frame_RoomInfo_Info)
-        label_ten_phong.setText(f"Tên phòng: {phong.ten}")
-        layout_for_frame_RoomInfo_Info.addWidget(label_ten_phong)
-
-        label_khu_vuc = QLabel(parent=frame_RoomInfo_Info)
-        label_khu_vuc.setText(f"Khu vực: {phong.khu.ten if phong.khu else ''}")
-        layout_for_frame_RoomInfo_Info.addWidget(label_khu_vuc)
-
-        label_don_vi = QLabel(parent=frame_RoomInfo_Info)
-        label_don_vi.setText(f"Đơn vị quản lý: {phong.don_vi.ten if phong.don_vi else ''}")
-        layout_for_frame_RoomInfo_Info.addWidget(label_don_vi)
-
-        label_can_bo = QLabel(parent=frame_RoomInfo_Info)
-        label_can_bo.setText(f"Cán bộ quản lý: {phong.can_bo.ten if phong.can_bo else ''}")
-        layout_for_frame_RoomInfo_Info.addWidget(label_can_bo)
-
-        label_sdt = QLabel(parent=frame_RoomInfo_Info)
-        label_sdt.setText(f"SĐT liên hệ: {phong.can_bo.sdt if phong.can_bo.sdt else '' if phong.can_bo else ''}")
-        layout_for_frame_RoomInfo_Info.addWidget(label_sdt)
-
-        label_thong_tin = QLabel(parent=frame_RoomInfo_Info)
-        label_thong_tin.setText(f"Thông tin phòng: {phong.thong_tin if phong.thong_tin else ''}")
-        layout_for_frame_RoomInfo_Info.addWidget(label_thong_tin)
-
-        # . . . add more label for phong's properties here ...
-        # Create a vertical spacer as a widget
-        spacer_widget = QWidget(parent=frame_RoomInfo_Info)
-        spacer_widget.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
-
-        layout_for_frame_RoomInfo_Info.addWidget(spacer_widget)
-        layout.addWidget(frame_RoomInfo_Info)
+        frame_RoomInfo_Info = Frame_RoomInfo_Info(parent=parent,
+                                                  phong=phong)
+        parent_layout.addWidget(frame_RoomInfo_Info)
 
     def renderViewRoomInfo_DanhMuc(self, phong):
+        qpushbutton_clicked_disconnect(self.ui.pushButton_RoomInfo_Back)
+        self.ui.pushButton_RoomInfo_Back.clicked.connect(
+            self.backToPageRoomsOrChecks)
         """ Tạo view danh mục """
-        self.ui.label_RoomInfo_TenPhong.setText(f"Phòng {phong.ma} - {phong.khu.ten}\n{phong.ten}")
+        self.ui.label_RoomInfo_TenPhong.setText(
+            f"Phòng {phong.ma} - {phong.khu.ten}\n{phong.ten}")
         # Setup frame for display RoomInfo_Info
         parent = self.ui.frame_RoomInfo
-        layout = self.ui.frame_RoomInfo.layout()
-        clearAllWidgets(parent=parent)
-        # Frame for RoomInfo_Info to be setted in frame_RoomInfo
-        frame_RoomInfo_DanhMuc = QFrame(parent=parent)
-        frame_RoomInfo_DanhMuc.setFrameShape(QFrame.Shape.StyledPanel)   # Optional
-        frame_RoomInfo_DanhMuc.setFrameShadow(QFrame.Shadow.Raised)  # Optional
-        # Vertical layout for the frame
-        layout_for_frame_RoomInfo_DanhMuc = QVBoxLayout(frame_RoomInfo_DanhMuc)
-        # Display table for all Danh muc
-        table_DanhMuc = QtWidgets.QTableWidget(parent=frame_RoomInfo_DanhMuc)
-        # Table headers
-        header_labels = ['STT', 'Mã tài sản', 'Loại tài sản', 'SL', 'Chức năng']
-        column_count = len(header_labels)
-        table_DanhMuc.setColumnCount(column_count)
-        table_DanhMuc.setHorizontalHeaderLabels(header_labels)
-        # Fill NhomTaiSan > LoaiTaiSan
-        tai_sans_grouped = defaultdict(lambda: defaultdict(list))   # Dictionary of dictionaries of lists of tai_san
-        for tai_san in phong.tai_sans:
-            loai_tai_san = tai_san.loai_tai_san if tai_san.loai_tai_san else None
-            nhom_tai_san = loai_tai_san.nhom_tai_san if loai_tai_san else None
-            if loai_tai_san and nhom_tai_san:
-                tai_sans_grouped[nhom_tai_san][loai_tai_san].append(tai_san)
-        # Number of row in table = total nhom tai san + total loai tai san
-        row_count = len(tai_sans_grouped)
-        for nhom_tai_san, loai_tai_san_list in tai_sans_grouped.items():
-            row_count += len(loai_tai_san_list)
-        table_DanhMuc.setRowCount(row_count)
-        # Display
-        row = 0
-        for nhom_tai_san, loai_tai_san_dict in tai_sans_grouped.items():
-            # Nhom tai san
-            print(f"Nhom tai san: {nhom_tai_san.ten}")
-            # Display ten Nhom Tai San
-            table_DanhMuc.setSpan(row, 0, 1, column_count)
-            qitem_ten_danh_muc = QTableWidgetItem(nhom_tai_san.ten)
-            qitem_ten_danh_muc.setFlags(qitem_ten_danh_muc.flags() & ~PyQt6.QtCore.Qt.ItemFlag.ItemIsEditable)
-            table_DanhMuc.setItem(row, 0, qitem_ten_danh_muc)
-            row += 1
-            stt = 1
-            for loai_tai_san, tai_san_list in loai_tai_san_dict.items():
-                # Loai tai san
-                print(f"    Loai tai san: {loai_tai_san.ten}")
-                # stt
-                qitem_stt = QTableWidgetItem(f"{stt}")
-                qitem_stt.setFlags(qitem_stt.flags() & ~PyQt6.QtCore.Qt.ItemFlag.ItemIsEditable)
-                table_DanhMuc.setItem(row, 0, qitem_stt)
-                table_DanhMuc.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeMode.ResizeToContents)
-                # ma
-                qitem_ma_loai_tai_san = QTableWidgetItem(f"{phong.don_vi.ma}.{phong.ma}.{loai_tai_san.ma}")
-                qitem_ma_loai_tai_san.setFlags(qitem_ma_loai_tai_san.flags() & ~PyQt6.QtCore.Qt.ItemFlag.ItemIsEditable)
-                table_DanhMuc.setItem(row, 1, qitem_ma_loai_tai_san)
-                table_DanhMuc.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeMode.ResizeToContents)
-                # ten
-                qitem_ten_loai_tai_san = QTableWidgetItem(loai_tai_san.ten)
-                qitem_ten_loai_tai_san.setFlags(qitem_ten_loai_tai_san.flags() & ~PyQt6.QtCore.Qt.ItemFlag.ItemIsEditable)
-                table_DanhMuc.setItem(row, 2, qitem_ten_loai_tai_san)
-                table_DanhMuc.horizontalHeader().setSectionResizeMode(2, QHeaderView.ResizeMode.Stretch)
-                # sl
-                qitem_sl = QTableWidgetItem(f"{len(tai_san_list)}")
-                qitem_sl.setFlags(qitem_sl.flags() & ~PyQt6.QtCore.Qt.ItemFlag.ItemIsEditable)
-                table_DanhMuc.setItem(row, 3, qitem_sl)
-                # chi tiet
-                button_detail = QPushButton('Chi tiết', parent)
-                button_detail.clicked.connect(partial(self.renderViewRoomInfo_DanhMuc_Detail, phong=phong, loai_tai_san=loai_tai_san, tai_san_list=tai_san_list))
-                table_DanhMuc.setCellWidget(row, 4, button_detail)
-                table_DanhMuc.horizontalHeader().setSectionResizeMode(4, QHeaderView.ResizeMode.ResizeToContents)
-                
-                row += 1
-                stt += 1
-        # Custom display for cols and rows of table
-        table_DanhMuc.resizeColumnsToContents()
-        table_DanhMuc.resizeRowsToContents()
-        # Put the table into layout
-        layout_for_frame_RoomInfo_DanhMuc.addWidget(table_DanhMuc)
-        layout.addWidget(frame_RoomInfo_DanhMuc)
+        parent_layout = parent.layout()
+        clearAllWidgets(parent_widget=parent)
+        table_DanhMuc = Table_DanhMuc(parent=parent,
+                                      phong=phong,
+                                      callback_DetailButton=self.renderViewRoomInfo_DanhMuc_Detail)
+        parent_layout.addWidget(table_DanhMuc)
 
     def renderViewRoomInfo_KiemKe(self, phong):
-        
         """ Tạo view kiểm kê """
-        self.ui.label_RoomInfo_TenPhong.setText(f"Phòng {phong.ma} - {phong.khu.ten}\n{phong.ten}")
+        self.ui.label_RoomInfo_TenPhong.setText(
+            f"Phòng {phong.ma} - {phong.khu.ten}\n{phong.ten}")
+        # Setup frame for display RoomInfo_Info
+        parent = self.ui.frame_RoomInfo
+        parent_layout = parent.layout()
+        clearAllWidgets(parent_widget=parent)
+        table_DanhMuc_KiemKe = Table_DanhMuc_KiemKe(parent=parent,
+                                                    phong=phong,
+                                                    callback_EditButton=self.renderViewRoomInfo_KiemKe_Detail)
+        parent_layout.addWidget(table_DanhMuc_KiemKe)
+
+    def renderViewRoomInfo_KiemKe_Detail(self, phong: Phong, loai_tai_san: LoaiTaiSan, tai_san_list: List[TaiSan]):
+        self.ui.label_RoomInfo_TenPhong.setText(
+            f"Phòng {phong.ma} - {phong.khu.ten}\n{phong.ten}")
         # Setup frame for display RoomInfo_Info
         parent = self.ui.frame_RoomInfo
         layout = self.ui.frame_RoomInfo.layout()
-        clearAllWidgets(parent=parent)
-        # Frame for RoomInfo_Info to be setted in frame_RoomInfo
-        frame_RoomInfo_KiemKe = QFrame(parent=parent)
-        frame_RoomInfo_KiemKe.setFrameShape(QFrame.Shape.StyledPanel)   # Optional
-        frame_RoomInfo_KiemKe.setFrameShadow(QFrame.Shadow.Raised)  # Optional
-        # Vertical layout for the frame
-        layout_for_frame_RoomInfo_KiemKe = QVBoxLayout(frame_RoomInfo_KiemKe)
-        # Display table for all Danh muc
-        table_KiemKe = QtWidgets.QTableWidget(parent=frame_RoomInfo_KiemKe)
-        # Table headers
-        header_labels = ['STT', 'Mã tài sản', 'Loại tài sản', 'SL', 'Chức năng']
-        column_count = len(header_labels)
-        table_KiemKe.setColumnCount(column_count)
-        table_KiemKe.setHorizontalHeaderLabels(header_labels)
-        # Fill NhomTaiSan > LoaiTaiSan
-        tai_sans_grouped = defaultdict(lambda: defaultdict(list))   # Dictionary of dictionaries of lists of tai_san
-        for tai_san in phong.tai_sans:
-            loai_tai_san = tai_san.loai_tai_san if tai_san.loai_tai_san else None
-            nhom_tai_san = loai_tai_san.nhom_tai_san if loai_tai_san else None
-            if loai_tai_san and nhom_tai_san:
-                tai_sans_grouped[nhom_tai_san][loai_tai_san].append(tai_san)
-        # Number of row in table = total nhom tai san + total loai tai san
-        row_count = len(tai_sans_grouped)
-        for nhom_tai_san, loai_tai_san_list in tai_sans_grouped.items():
-            row_count += len(loai_tai_san_list)
-        table_KiemKe.setRowCount(row_count)
-        # Display
-        row = 0
-        for nhom_tai_san, loai_tai_san_dict in tai_sans_grouped.items():
-            # Nhom tai san
-            print(f"Nhom tai san: {nhom_tai_san.ten}")
-            # Display ten Nhom Tai San
-            table_KiemKe.setSpan(row, 0, 1, column_count)
-            qitem_ten_danh_muc = QTableWidgetItem(nhom_tai_san.ten)
-            qitem_ten_danh_muc.setFlags(qitem_ten_danh_muc.flags() & ~PyQt6.QtCore.Qt.ItemFlag.ItemIsEditable)
-            table_KiemKe.setItem(row, 0, qitem_ten_danh_muc)
-            row += 1
-            stt = 1
-            for loai_tai_san, tai_san_list in loai_tai_san_dict.items():
-                # Loai tai san
-                print(f"    Loai tai san: {loai_tai_san.ten}")
-                # stt
-                qitem_stt = QTableWidgetItem(f"{stt}")
-                qitem_stt.setFlags(qitem_stt.flags() & ~PyQt6.QtCore.Qt.ItemFlag.ItemIsEditable)
-                table_KiemKe.setItem(row, 0, qitem_stt)
-                table_KiemKe.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeMode.ResizeToContents)
-                # ma
-                qitem_ma_loai_tai_san = QTableWidgetItem(f"{phong.don_vi.ma}.{phong.ma}.{loai_tai_san.ma}")
-                qitem_ma_loai_tai_san.setFlags(qitem_ma_loai_tai_san.flags() & ~PyQt6.QtCore.Qt.ItemFlag.ItemIsEditable)
-                table_KiemKe.setItem(row, 1, qitem_ma_loai_tai_san)
-                table_KiemKe.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeMode.ResizeToContents)
-                # ten
-                qitem_ten_loai_tai_san = QTableWidgetItem(loai_tai_san.ten)
-                qitem_ten_loai_tai_san.setFlags(qitem_ten_loai_tai_san.flags() & ~PyQt6.QtCore.Qt.ItemFlag.ItemIsEditable)
-                table_KiemKe.setItem(row, 2, qitem_ten_loai_tai_san)
-                table_KiemKe.horizontalHeader().setSectionResizeMode(2, QHeaderView.ResizeMode.Stretch)
-                # sl
-                qitem_sl = QTableWidgetItem(f"{len(tai_san_list)}")
-                qitem_sl.setFlags(qitem_sl.flags() & ~PyQt6.QtCore.Qt.ItemFlag.ItemIsEditable)
-                table_KiemKe.setItem(row, 3, qitem_sl)
-                # chuc nang
-                button_detail = QPushButton('Edit', parent)
-                button_detail.clicked.connect(partial(self.renderViewRoomInfo_KiemKe_Detail, phong=phong, loai_tai_san=loai_tai_san, tai_san_list=tai_san_list))
-                table_KiemKe.setCellWidget(row, 4, button_detail)
-                table_KiemKe.horizontalHeader().setSectionResizeMode(4, QHeaderView.ResizeMode.ResizeToContents)
-
-                row += 1
-                stt += 1
-        # Custom display for cols and rows of table
-        table_KiemKe.resizeColumnsToContents()
-        table_KiemKe.resizeRowsToContents()
-        # Put the table into layout
-        layout_for_frame_RoomInfo_KiemKe.addWidget(table_KiemKe)
-        layout.addWidget(frame_RoomInfo_KiemKe)
-
-    def renderViewRoomInfo_KiemKe_Detail(self, phong:Phong, loai_tai_san:LoaiTaiSan, tai_san_list:List[TaiSan]):
-
-        self.ui.label_RoomInfo_TenPhong.setText(f"Phòng {phong.ma} - {phong.khu.ten}\n{phong.ten}")
-        # Setup frame for display RoomInfo_Info
-        parent = self.ui.frame_RoomInfo
-        layout = self.ui.frame_RoomInfo.layout()
-        clearAllWidgets(parent=parent)
-        # Frame for RoomInfo_Info to be setted in frame_RoomInfo
-        frame_RoomInfo_DanhMuc_Detail = QFrame(parent=parent)
-        frame_RoomInfo_DanhMuc_Detail.setFrameShape(QFrame.Shape.StyledPanel)   # Optional
-        frame_RoomInfo_DanhMuc_Detail.setFrameShadow(QFrame.Shadow.Raised)  # Optional
-        # Vertical layout for the frame
-        layout_for_frame_RoomInfo_DanhMuc_Detail = QVBoxLayout(frame_RoomInfo_DanhMuc_Detail)
-        # Display table for all Danh muc
-        table_DanhMuc_Detail = QtWidgets.QTableWidget(parent=frame_RoomInfo_DanhMuc_Detail)
-        # Table headers
-        table_DanhMuc_Detail.setColumnCount(4)
-        table_DanhMuc_Detail.setHorizontalHeaderLabels(['STT', 'Mã định danh tài sản', 'Mô tả chi tiết tài sản', 'Kiểm kê'])
-        # Fill LoaiTaiSan > TaiSan
-        # Number of row in table = ten loai tai san + total tai san
-        row_count = 1 + len(tai_san_list)
-        table_DanhMuc_Detail.setRowCount(row_count)
-        # Display ten Loai Tai San
-        table_DanhMuc_Detail.setSpan(0, 0, 1, 5)  # Merge cells
-        qitem_ten_loai_tai_san = QTableWidgetItem(loai_tai_san.ten)
-        qitem_ten_loai_tai_san.setFlags(qitem_ten_loai_tai_san.flags() & ~PyQt6.QtCore.Qt.ItemFlag.ItemIsEditable)
-        table_DanhMuc_Detail.setItem(0, 0, qitem_ten_loai_tai_san)
-        row = 1
-        stt = 1
-        for tai_san in tai_san_list:
-            # stt
-            qitem_stt = QTableWidgetItem(f"{stt}")
-            qitem_stt.setFlags(qitem_stt.flags() & ~PyQt6.QtCore.Qt.ItemFlag.ItemIsEditable)
-            table_DanhMuc_Detail.setItem(row, 0, qitem_stt)
-            table_DanhMuc_Detail.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeMode.ResizeToContents)
-            # ma
-            qitem_ma_tai_san = QTableWidgetItem(f"{phong.don_vi.ma}.{phong.ma}.{loai_tai_san.ma}.{tai_san.ma}")
-            qitem_ma_tai_san.setFlags(qitem_ma_tai_san.flags() & ~PyQt6.QtCore.Qt.ItemFlag.ItemIsEditable)
-            table_DanhMuc_Detail.setItem(row, 1, qitem_ma_tai_san)
-            table_DanhMuc_Detail.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeMode.ResizeToContents)
-            # mo ta
-            qitem_mo_ta_tai_san = QTableWidgetItem(tai_san.mo_ta if tai_san.mo_ta else '')
-            qitem_mo_ta_tai_san.setFlags(qitem_mo_ta_tai_san.flags() & ~PyQt6.QtCore.Qt.ItemFlag.ItemIsEditable)
-            table_DanhMuc_Detail.setItem(row, 2, qitem_mo_ta_tai_san)
-            table_DanhMuc_Detail.horizontalHeader().setSectionResizeMode(2, QHeaderView.ResizeMode.Stretch)
-            # trang thai kiem ke
-            qitem_trang_thai_kiem_ke_tai_san = QTableWidgetItem(tai_san.ghi_chu)
-            qitem_trang_thai_kiem_ke_tai_san.setFlags(qitem_trang_thai_kiem_ke_tai_san.flags() & ~PyQt6.QtCore.Qt.ItemFlag.ItemIsEditable)
-            table_DanhMuc_Detail.setItem(row, 3, qitem_trang_thai_kiem_ke_tai_san)
-            table_DanhMuc_Detail.horizontalHeader().setSectionResizeMode(3, QHeaderView.ResizeMode.ResizeToContents)
-            
-            row += 1
-            stt += 1
-            
-        # Custom display for cols and rows of table
-        table_DanhMuc_Detail.resizeColumnsToContents()
-        table_DanhMuc_Detail.resizeRowsToContents()
-        # Put the table into layout
-        layout_for_frame_RoomInfo_DanhMuc_Detail.addWidget(table_DanhMuc_Detail)
-        layout.addWidget(frame_RoomInfo_DanhMuc_Detail)
+        clearAllWidgets(parent_widget=parent)
+        table_DanhMuc_KiemKe_Detail = Table_DanhMuc_KiemKe_Detail(parent=parent,
+                                                                  phong=phong,
+                                                                  loai_tai_san=loai_tai_san,
+                                                                  tai_san_list=tai_san_list)
+        layout.addWidget(table_DanhMuc_KiemKe_Detail)
+        self.thread_scanner.start()
         # Process pending events to update the UI
         QCoreApplication.processEvents()
-        scanned_string = self.scanner.read_barcode()
-        if scanned_string != ScannerStatus.NO_DEVICE and scanned_string != ScannerStatus.READ_ERROR:
-            for tai_san in tai_san_list:
-                ma_tai_san = f"{phong.don_vi.ma}.{phong.ma}.{loai_tai_san.ma}.{tai_san.ma}"
-                if ma_tai_san == scanned_string:
-                    CRUD_TaiSan.update(tai_san_id=tai_san.id, new_ghi_chu=BanGhiKiemKeState.IS_AVAILABLE.value)
-                    self.renderViewRoomInfo_KiemKe_Detail(phong=phong, loai_tai_san=loai_tai_san, tai_san_list=tai_san_list)
+        self.scanning_phong = phong
+        self.scanning_loai_tai_san = loai_tai_san
+        self.scanning_tai_san_list = tai_san_list
     
 
+    
+    def scanned_update(self, scanned_string:str):
+        phong = self.scanning_phong
+        loai_tai_san = self.scanning_loai_tai_san
+        tai_san_list = self.scanning_tai_san_list
+        if not phong or not loai_tai_san or not tai_san_list:
+            return
+        for tai_san in tai_san_list:
+            ma_tai_san = f"{phong.don_vi.ma}.{phong.ma}.{loai_tai_san.ma}.{tai_san.ma}"
+            if ma_tai_san == scanned_string:
+                CRUD_TaiSan.update(tai_san_id=tai_san.id, new_ghi_chu=BanGhiKiemKeState.IS_AVAILABLE.value)
+                self.renderViewRoomInfo_KiemKe_Detail(phong=phong, loai_tai_san=loai_tai_san, tai_san_list=tai_san_list)
+        
 
-
-    def renderViewRoomInfo_DanhMuc_Detail(self, phong:Phong, loai_tai_san:LoaiTaiSan, tai_san_list:List[TaiSan]):
-        self.ui.label_RoomInfo_TenPhong.setText(f"Phòng {phong.ma} - {phong.khu.ten}\n{phong.ten}")
+    def renderViewRoomInfo_DanhMuc_Detail(self, phong: Phong, loai_tai_san: LoaiTaiSan, tai_san_list: List[TaiSan]):
+        qpushbutton_clicked_disconnect(self.ui.pushButton_RoomInfo_Back)
+        self.ui.pushButton_RoomInfo_Back.clicked.connect(
+            partial(self.renderViewRoomInfo_DanhMuc, phong=phong))
+        self.ui.label_RoomInfo_TenPhong.setText(
+            f"Phòng {phong.ma} - {phong.khu.ten}\n{phong.ten}")
         # Setup frame for display RoomInfo_Info
         parent = self.ui.frame_RoomInfo
-        layout = self.ui.frame_RoomInfo.layout()
-        clearAllWidgets(parent=parent)
-        # Frame for RoomInfo_Info to be setted in frame_RoomInfo
-        frame_RoomInfo_DanhMuc_Detail = QFrame(parent=parent)
-        frame_RoomInfo_DanhMuc_Detail.setFrameShape(QFrame.Shape.StyledPanel)   # Optional
-        frame_RoomInfo_DanhMuc_Detail.setFrameShadow(QFrame.Shadow.Raised)  # Optional
-        # Vertical layout for the frame
-        layout_for_frame_RoomInfo_DanhMuc_Detail = QVBoxLayout(frame_RoomInfo_DanhMuc_Detail)
-        # Display table for all Danh muc
-        table_DanhMuc_Detail = QtWidgets.QTableWidget(parent=frame_RoomInfo_DanhMuc_Detail)
-        # Table headers
-        table_DanhMuc_Detail.setColumnCount(4)
-        table_DanhMuc_Detail.setHorizontalHeaderLabels(['STT', 'Mã định danh tài sản', 'Mô tả chi tiết tài sản', 'Ghi chú'])
-        # Fill LoaiTaiSan > TaiSan
-        # Number of row in table = ten loai tai san + total tai san
-        row_count = 1 + len(tai_san_list)
-        table_DanhMuc_Detail.setRowCount(row_count)
-        # Display ten Loai Tai San
-        table_DanhMuc_Detail.setSpan(0, 0, 1, 5)  # Merge cells
-        qitem_ten_loai_tai_san = QTableWidgetItem(loai_tai_san.ten)
-        qitem_ten_loai_tai_san.setFlags(qitem_ten_loai_tai_san.flags() & ~PyQt6.QtCore.Qt.ItemFlag.ItemIsEditable)
-        table_DanhMuc_Detail.setItem(0, 0, qitem_ten_loai_tai_san)
-        row = 1
-        stt = 1
-        for tai_san in tai_san_list:
-            # stt
-            qitem_stt = QTableWidgetItem(f"{stt}")
-            qitem_stt.setFlags(qitem_stt.flags() & ~PyQt6.QtCore.Qt.ItemFlag.ItemIsEditable)
-            table_DanhMuc_Detail.setItem(row, 0, qitem_stt)
-            table_DanhMuc_Detail.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeMode.ResizeToContents)
-            # ma
-            qitem_ma_tai_san = QTableWidgetItem(f"{phong.don_vi.ma}.{phong.ma}.{loai_tai_san.ma}.{tai_san.ma}")
-            qitem_ma_tai_san.setFlags(qitem_ma_tai_san.flags() & ~PyQt6.QtCore.Qt.ItemFlag.ItemIsEditable)
-            table_DanhMuc_Detail.setItem(row, 1, qitem_ma_tai_san)
-            table_DanhMuc_Detail.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeMode.ResizeToContents)
-            # mo ta
-            qitem_mo_ta_tai_san = QTableWidgetItem(tai_san.mo_ta if tai_san.mo_ta else '')
-            qitem_mo_ta_tai_san.setFlags(qitem_mo_ta_tai_san.flags() & ~PyQt6.QtCore.Qt.ItemFlag.ItemIsEditable)
-            table_DanhMuc_Detail.setItem(row, 2, qitem_mo_ta_tai_san)
-            table_DanhMuc_Detail.horizontalHeader().setSectionResizeMode(2, QHeaderView.ResizeMode.ResizeToContents)
-            # ghi chu
-            qitem_ghi_chu_tai_san = QTableWidgetItem(tai_san.ghi_chu if tai_san.ghi_chu else '')
-            qitem_ghi_chu_tai_san.setFlags(qitem_ghi_chu_tai_san.flags() & ~PyQt6.QtCore.Qt.ItemFlag.ItemIsEditable)
-            table_DanhMuc_Detail.setItem(row, 3, qitem_ghi_chu_tai_san)
-            table_DanhMuc_Detail.horizontalHeader().setSectionResizeMode(3, QHeaderView.ResizeMode.ResizeToContents)
-            
-            row += 1
-            stt += 1
-            
-        # Custom display for cols and rows of table
-        table_DanhMuc_Detail.resizeColumnsToContents()
-        table_DanhMuc_Detail.resizeRowsToContents()
-        # Put the table into layout
-        layout_for_frame_RoomInfo_DanhMuc_Detail.addWidget(table_DanhMuc_Detail)
-        layout.addWidget(frame_RoomInfo_DanhMuc_Detail)
-    
+        parent_layout = parent.layout()
+        clearAllWidgets(parent_widget=parent)
+
+        table_DanhMuc_Detail = Table_DanhMuc_Detail(parent=parent,
+                                                    phong=phong,
+                                                    loai_tai_san=loai_tai_san,
+                                                    tai_san_list=tai_san_list)
+        parent_layout.addWidget(table_DanhMuc_Detail)
+
     """ Page Room info """
     """ Page Check """
+
     def toPageCheck(self):
         self.page_rooms_info_mode = PageRoomsInfoMode.KIEM_KE
         self.renderRooms()
@@ -616,6 +412,13 @@ class MyApplication(QMainWindow):
 
     # Test
     def toPageTest(self):
+        dialog = Dialog_QRScanner(title='Test title',
+                                  msg='Hello msg')
+        result = dialog.exec()
+        if result:
+            print("Success!")
+        else:
+            print("Cancel!")
         self.ui.stackedWidget.setCurrentWidget(self.ui.page_Test)
 
     def test0(self):
@@ -624,11 +427,12 @@ class MyApplication(QMainWindow):
     def test1(self):
         layout = self.ui.frame_ScrollAreaTest.layout()
         button = QPushButton(text=f"{layout.count()}")
-        button.clicked.connect(lambda: self.myPrint(text=f"Button {button.objectName()} clicked!"))
+        button.clicked.connect(lambda: self.myPrint(
+            text=f"Button {button.objectName()} clicked!"))
         layout.addWidget(button)
 
     def test2(self):
-        khu = CRUD_Khu.read_all()[0]
+        status, khu = CRUD_Khu.read_all()[0]
         parent = self.ui.frame_ScrollAreaTest
         frame_Khu = createKhuFrame(parent, khu)
         layout = self.ui.frame_ScrollAreaTest.layout()
@@ -637,10 +441,12 @@ class MyApplication(QMainWindow):
     def myPrint(self, text):
         print(text)
 
-def createRoomInfo_KiemKe_Frame(parent, phong:Phong):
+
+def createRoomInfo_KiemKe_Frame(parent, phong: Phong):
     pass
 
-def createKhuFrame(parent, khu:Khu, callback = None):
+
+def createKhuFrame(parent, khu: Khu, callback=None):
     # Frame for Khu
     frame_Khu = QFrame(parent=parent)
     frame_Khu.setFrameShape(QFrame.Shape.StyledPanel)   # Optional
@@ -672,13 +478,15 @@ def createKhuFrame(parent, khu:Khu, callback = None):
             pushButton_Phong.setText(f"P.{phong.ma}")
 
             if callback:
-                pushButton_Phong.clicked.connect(lambda checked, phong=phong: callback(phong))
+                pushButton_Phong.clicked.connect(
+                    lambda checked, phong=phong: callback(phong))
 
             # Calculate the row and column positions based on the index
             row_position = i // columns
             column_position = i % columns
 
-            gridLayout_Phong.addWidget(pushButton_Phong, row_position, column_position, 1, 1)
+            gridLayout_Phong.addWidget(
+                pushButton_Phong, row_position, column_position, 1, 1)
 
     else:
         verticalLayout = QVBoxLayout(frame_PhongKhu)
@@ -686,25 +494,12 @@ def createKhuFrame(parent, khu:Khu, callback = None):
 
     return frame_Khu
 
-def qpushbutton_clicked_disconnect(button:QPushButton):
+
+def qpushbutton_clicked_disconnect(button: QPushButton):
     try:
         button.clicked.disconnect()
     except Exception:
         pass
-    
-
-def clearAllWidgets(parent):
-    layout = parent.layout()
-    if layout:
-        while layout.count():
-            w = layout.takeAt(0).widget()
-            if w:
-                w.deleteLater()
-
-def resetAllTaiSan():
-    tai_sans = CRUD_TaiSan.read_all()
-    for tai_san in tai_sans:
-        CRUD_TaiSan.update(tai_san_id=tai_san.id, new_ghi_chu=BanGhiKiemKeState.NOT_AVAILABLE.value)
 
 
 if __name__ == "__main__":

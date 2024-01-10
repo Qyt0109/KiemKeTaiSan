@@ -1,5 +1,6 @@
 # git clone https://github.com/vpatron/barcode_scanner_python.git
 
+from typing import Tuple
 import evdev
 from enum import Enum
 import time
@@ -9,6 +10,7 @@ class ScannerStatus(Enum):
     DEVICE_NOT_FOUND = "Device not found"
     NO_DEVICE = "No device"
     READ_ERROR = "Read error"
+    READ_OK = "Read ok"
 
 
 ERROR_CHARACTER = '?'
@@ -79,49 +81,47 @@ class Scanner:
         print("Device not found!")
         return None
     
-    def read_barcode(self, callback=None):
-        if self.device:
-            scanned_string = ''
-            try:
-                self.device.grab()
-                print("Start scanning from device")
-
-                # Clear existing events in the buffer
-                if self.is_first_scan == False:
-                    self.clear_device_buffer()
-                self.is_first_scan = False
-
-                shift_active = False
-
-                for event in self.device.read_loop():
-                    if event.type == evdev.ecodes.EV_KEY:
-                        if event.code == evdev.ecodes.KEY_ENTER and event.value == VALUE_DOWN:
-                            break
-
-                        elif event.code in [evdev.ecodes.KEY_LEFTSHIFT, evdev.ecodes.KEY_RIGHTSHIFT]:
-                            shift_active = event.value == VALUE_DOWN
-                        elif event.value == VALUE_DOWN:
-                            ch = CHARMAP.get(event.code, ERROR_CHARACTER)[1 if shift_active else 0]
-                            scanned_string += ch
-
-                print(scanned_string)
-
-            except Exception as err:
-                logging.error(err)
-                scanned_string = ScannerStatus.READ_ERROR
-
-            finally:
-                self.device.ungrab()
-
-        else:
+    def read_barcode(self, callback=None)-> Tuple[ScannerStatus, str|None]:
+        if not self.device:
             print("No device available")
-            scanned_string = ScannerStatus.NO_DEVICE
+            return ScannerStatus.NO_DEVICE, None
+        scanned_string = ''
+        try:
+            self.device.grab()
+            print("Start scanning from device")
 
-        if callback:
-            callback(scanned_string=scanned_string)
-        return scanned_string
+            # Clear existing events in the buffer
+            if self.is_first_scan == False:
+                self.clear_device_buffer()
+            self.is_first_scan = False
 
-    def clear_device_buffer(self):
+            shift_active = False
+
+            for event in self.device.read_loop():
+                if event.type == evdev.ecodes.EV_KEY:
+                    if event.code == evdev.ecodes.KEY_ENTER and event.value == VALUE_DOWN:
+                        break
+
+                    elif event.code in [evdev.ecodes.KEY_LEFTSHIFT, evdev.ecodes.KEY_RIGHTSHIFT]:
+                        shift_active = event.value == VALUE_DOWN
+                    elif event.value == VALUE_DOWN:
+                        ch = CHARMAP.get(event.code, ERROR_CHARACTER)[1 if shift_active else 0]
+                        scanned_string += ch
+
+            print(scanned_string)
+            if callback:
+                callback(scanner_status=ScannerStatus.READ_OK,
+                         scanned_string=scanned_string)
+            return ScannerStatus.READ_OK, scanned_string
+
+        except Exception as e:
+            logging.error(e)
+            return ScannerStatus.READ_ERROR, e
+
+        finally:
+            self.device.ungrab()
+
+    def clear_device_buffer(self)-> None:
         for event in self.device.read_loop():
             if event.type == evdev.ecodes.EV_KEY:
                 break
@@ -133,6 +133,10 @@ if __name__ == "__main__":
     vendor_id = 0x1a86
     product_id = 0xe026
     scanner = Scanner(vendor_id=vendor_id, product_id=product_id)
-    barcode = scanner.read_barcode()
-    print(barcode)
+    status, result = scanner.read_barcode()
+    if status == ScannerStatus.READ_OK:
+        scanned_string = result
+        print(scanned_string)
+    else:
+        print(status, result)
 """
