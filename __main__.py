@@ -135,7 +135,7 @@ class MyApplication(QMainWindow):
         self.scanning_tai_san_list = None
         self.thread_scanner = Thread_Scanner(vendor_id=0x1a86,
                                              product_id=0xe026)
-        self.thread_scanner.connect(self.scanned_update)
+        self.thread_scanner.is_done.connect(self.scanned_update)
 
     # Icons
     def init_icons(self):
