@@ -414,6 +414,7 @@ class MyApplication(QMainWindow):
     # Test
     def toPageTest(self):
         resetAllTaiSan()
+        self.toPageMainMenu()
         return
         dialog = Dialog_QRScanner(title='Test title',
                                   msg='Hello msg')
