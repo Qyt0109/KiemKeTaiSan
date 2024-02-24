@@ -111,9 +111,6 @@ class MyApplication(QMainWindow):
         """ Page QR """
         self.ui.pushButton_KiemTraThietBi.clicked.connect(self.toPageQR)
         """ Page QR """
-        """ Page CreateQR """
-        self.ui.pushButton_ToPageCreateQR.clicked.connect(self.toPageCreateQR)
-        """ Page CreateQR """
         """ Page Check """
         self.handler_kiem_kes = defaultdict(Handler_KiemKe)
         self.ui.pushButton_Check.clicked.connect(self.toPageCheck)
@@ -245,12 +242,6 @@ class MyApplication(QMainWindow):
             self.ui.pushButton_RoomSearchOptions.setStyleSheet(
                 "background-color: rgba(102, 153, 255, 128);")
     """ Page Rooms """
-
-    """ Page CreateQR """
-
-    def toPageCreateQR(self):
-        self.ui.stackedWidget.setCurrentWidget(self.ui.page_CreateQR)
-    """ Page CreateQR """
 
     """ Page QR """
 
