@@ -161,7 +161,7 @@ class MyApplication(QMainWindow):
         if self.ui.lineEdit_Username.text() == "admin" and self.ui.lineEdit_Password.text() == "admin":
             print("Logged in!")
             self.toPageMainMenu()
-        # Bypass login for developing
+        #FIXME: Bypass login for developing only
         else:
             self.toPageMainMenu()
 
@@ -176,6 +176,7 @@ class MyApplication(QMainWindow):
         self.ui.pushButton_RoomInfo_Back.clicked.connect(
             self.backToPageRoomsOrChecks)
         status, result = CRUD_DonVi.read_all()
+        print(status, result)
         don_vis = []
         if status == CRUD_Status.FOUND:
             don_vis = result
