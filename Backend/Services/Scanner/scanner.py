@@ -108,7 +108,7 @@ class Scanner:
                         ch = CHARMAP.get(event.code, ERROR_CHARACTER)[1 if shift_active else 0]
                         scanned_string += ch
 
-            print(scanned_string)
+            # print(scanned_string)
             if callback:
                 callback(scanner_status=ScannerStatus.READ_OK,
                          scanned_string=scanned_string)

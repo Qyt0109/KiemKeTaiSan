@@ -29,7 +29,7 @@ class Thread_Scanner(QThread):
     def run(self):
         while True:
             status, result = self.scanner.read_barcode()
-            print(status, result)
+            # print(status, result)
             if status == ScannerStatus.READ_OK:
                 scanned_string = result
                 self.is_done.emit(scanned_string)

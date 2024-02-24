@@ -126,7 +126,7 @@ class MyApplication(QMainWindow):
         self.ui.pushButton_Test2.clicked.connect(self.test2)
 
         # Full screen
-        self.showFullScreen()
+        # self.showFullScreen()
         self.toPageMainMenu()
 
         # Scanner
@@ -370,10 +370,13 @@ class MyApplication(QMainWindow):
         self.scanning_tai_san_list = tai_san_list
     
     def scanned_update(self, scanned_string:str):
-        print(scanned_string)
+        print(f"{scanned_string=}")
         phong = self.scanning_phong
         loai_tai_san = self.scanning_loai_tai_san
         tai_san_list = self.scanning_tai_san_list
+        print(f"{phong=}")
+        print(f"{loai_tai_san=}")
+        print(f"{tai_san_list=}")
         if not phong or not loai_tai_san or not tai_san_list:
             return
         for tai_san in tai_san_list:
