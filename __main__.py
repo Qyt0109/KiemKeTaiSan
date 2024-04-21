@@ -216,6 +216,7 @@ class MyApplication(QMainWindow):
         self.ui.comboBox_RoomSearchOptions_DonVi.setCurrentIndex(0)
 
     def onClicked_pushButton_RoomSearch(self):
+        #TODO: Search with filter
         selected_don_vi_id = None
         if self.ui.comboBox_RoomSearchOptions_DonVi.isVisible():
             selected_don_vi_index = self.ui.comboBox_RoomSearchOptions_DonVi.currentIndex()
@@ -251,7 +252,7 @@ class MyApplication(QMainWindow):
 
         # Process pending events to update the UI
         QCoreApplication.processEvents()
-        self.scanner.read_barcode(callback=self.displayScannedString)
+        self.scanner.read_barcode(callback=self.displayScannedString) #FIX
 
     def displayScannedString(self, scanned_string=None):
         if scanned_string == ScannerStatus.NO_DEVICE:
